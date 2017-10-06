@@ -1,0 +1,81 @@
+
+
+
+We'll be using "git" to keep track of changes to our ".c" files. 
+
+
+Windows: 
+
+Download "git" and install it somewhere. For instance, you install it in "C:/Program Files/git/" or "C:/Program Files (x86)/git/" or something. Just remember where it is. And then check to see that you can access it on the Command Prompt. Open Command Prompt and paste the whole path to "git.exe". 
+
+This might be "C:/Program Files/git/bin/git.exe" or "C:/Program Files (x86)/git/bin/git.exe". I'm really not sure where it is, so you'll need to find and try this on your own machine. So it might look like: 
+
+C:/Users/myname/Desktop> 
+C:/Users/myname/Desktop> "C:/Program Files/git/bin/git.exe" /help 
+
+If it works, cool. If it doesn't, then the path you've used is incorrect, or it contains spaces and you didn't use the double-quote mark ("). 
+
+
+Linux: 
+
+"git" might already be available on your computer; it came with mine. If not, open Terminal and "sudo apt-get git" to install it. 
+
+
+
+
+
+Make sure that you can always easily call "git" as "git" on the command line. In Windows, you can do this by: 
+
+Open "Control Panel" 
+> Choose "System and Security" 
+> Choose "System" 
+> Click "Advanced system settings" 
+> Click "Environment Variables" 
+> In "System Variables", find the "PATH" variable 
+> Click "Edit..." 
+> Put in a semi-colon (;) 
+> Add the folder which has "git.exe" 
+
+This might be "C:/Program Files/git/bin" or "C:/Program Files (x86)/git/bin/". I'm not really sure, but you'd know... 
+
+> Click "OK", "OK", "OK" 
+> Now, test on the command line that it works. 
+
+C:/Users/myname/Desktop> 
+C:/Users/myname/Desktop> git.exe /help 
+
+Maybe even try this: 
+
+C:/Users/myname/Desktop> git /help 
+
+
+
+
+
+Now, we'll do some work. You'll need to make a copy of the assignment code somewhere. Change the present working directory. Examples: 
+
+Windows: "cd %USERPROFILE%/Desktop/path/to/code/" 
+Linux: "cd ~/path/to/code/" 
+
+
+
+
+
+Then put this into your command line: 
+
+git clone "https://github.com/lloctan/C11-ASM-02.git" 
+
+
+
+
+
+You'll find a copy of the contents in this folder "C11-ASM-02/". Please keep the name of this folder the way it is. I have no idea what will happen when you try to change it. 
+
+Anyway, now that you have copies of this stuff, you need to tell "git" about it. Put the following commands into your command line. 
+
+cd "C11-ASM-02/"         ;; This changes the present working directory 
+git init 		 ;; This tells "git" that your work folder is here 
+git add . 		 ;; This tells "git" to include every file here 
+
+
+
