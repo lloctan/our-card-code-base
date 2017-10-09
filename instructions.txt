@@ -63,19 +63,49 @@ Linux: "cd ~/path/to/code/"
 
 Then put this into your command line: 
 
-git clone "https://github.com/lloctan/C11-ASM-02.git" 
+git clone "https://github.com/lloctan/our-card-code-base.git" 
 
 
 
 
 
-You'll find a copy of the contents in this folder "C11-ASM-02/". Please keep the name of this folder the way it is. I have no idea what will happen when you try to change it. 
+You'll find a copy of the contents in this folder "our-card-code-base/". Please keep the name of this folder the way it is. I have no idea what will happen when you try to change it. 
 
 Anyway, now that you have copies of this stuff, you need to tell "git" about it. Put the following commands into your command line. 
 
-cd "C11-ASM-02/"         ;; This changes the present working directory 
-git init 		 ;; This tells "git" that your work folder is here 
-git add . 		 ;; This tells "git" to include every file here 
+;; This changes the present working directory to "our-card-code-base/" 
+cd "our-card-code-base/" 
+
+;; This tells "git" that this is your work folder 
+git init 
+
+;; This tells "git" to include every file in your work folder 
+git add . 
+
+
+
+
+
+Now, make a new Github account at "https://github.com/join". You'll need this so that you can update our code-base. 
+
+Once you create and verify an account, let me know what your account name is and I'll make you a "collaborator" to the code-base. 
+
+
+
+
+
+Here are two visual guides to how "git" works: 
+http://marklodato.github.io/visual-git-guide/index-en.html
+https://rogerdudler.github.io/git-guide/
+
+
+
+
+
+Suppose some time tomorrow you want to do some programming. Before you start work, you need to see whether or not you have the most current version of the code. 
+
+git pull 
+
 
 
 
