@@ -94,9 +94,9 @@ struct _game
      * as possible against other teams' AIs. I'll be researching
      * heavily on this.
      *
-     * Turn 0 might have 3 turns,
-     * Turn 1 might have 4 turns,
-     * Turn 2 might have 2 turns.
+     * Turn 0 might have 3 moves,
+     * Turn 1 might have 4 moves,
+     * Turn 2 might have 2 moves.
      *
      * HISTORY_MOVES would have ...
      * { turn-0-move-0, turn-0-move-1, turn-0-move-2,
@@ -111,9 +111,9 @@ struct _game
      * which is an array containing pointers to the above variable
      * HISTORY_MOVES.
      *
-     * Turn 0 might have 3 turns,
-     * Turn 1 might have 4 turns,
-     * Turn 2 might have 2 turns.
+     * Turn 0 might have 3 moves,
+     * Turn 1 might have 4 moves,
+     * Turn 2 might have 2 moves.
      *
      * HISTORY_INDEX would have ...
      * { (history_moves + 0),
@@ -182,6 +182,15 @@ color colors[], suit suits[])
 
     assert_calloc (history_moves);
 
+    // Allocate memory for an array which keeps track of every 
+    // player's turn, so we can look up their moves in HISTORY_MOVES. 
+    playerMove **history_index =
+    calloc
+    (player_moves_max,
+    sizeof (struct _playerMove *));
+
+    assert_calloc (history_index);
+
     // Provide values to the new game
 
     // Presume the game begins clockwise
@@ -204,6 +213,9 @@ color colors[], suit suits[])
 
     // Keep track of every move in the game
     (*new_game).history_moves = history_moves;
+
+    // Keep track of every turn in the game 
+    (*new_game).history_index = history_index;
 
     // Current turn
     (*new_game).turn = 0;
@@ -251,6 +263,9 @@ void destroyGame
 
     // Free the variable which tracks every move
     free ((*game).history_moves);
+
+    // Free the variable which notes every turn 
+    free ((*game).history_index);
 
     // And finally, clear the game
     free (game);
@@ -368,9 +383,9 @@ int turnMoves
 (Game game, int turn)
 {
 
-    /* Turn 0 might have 3 turns,
-     * Turn 1 might have 4 turns,
-     * Turn 2 might have 2 turns.
+    /* Turn 0 might have 3 moves,
+     * Turn 1 might have 4 moves,
+     * Turn 2 might have 2 moves.
      *
      * HISTORY_INDEX would have ...
      * { (history_moves + 0),

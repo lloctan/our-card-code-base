@@ -1,0 +1,160 @@
+
+
+
+"What's going on?"
+
+We have two files "Card.c" and "Game.c". Follow the notes below to quickly get a grasp of what's happening.
+
+
+
+
+
+In "Card.c" ...
+
+
+
+"assert_malloc"
+Once you open up this file, the "assert_malloc" function appears as the first function. This is just a helper function. "malloc" might fail (instead of allocating memory in the heap, it may return a NULL pointer), and should that happen, we need to raise an error. This generally fails when we run out of memory, so it's very unlikely. That's all it is!
+
+
+
+"struct _card"
+Yes, normally a card would have a suit, colour and number. I've also added "card_id", which I'll explain a little later.
+
+
+
+"newCard"
+Looking at the bottom-half of this function, we have ...
+(*new_card).card_id,
+(*new_card).card_suit,
+(*new_card).card_color,
+(*new_card).card_value.
+
+A card ID number just makes comparing two cards easier. If we created a card { THREE, BLUE, SPADES } a little earlier, we don't need to create another one. But how do we check it exists? We could store every card we ever created into an array; like a real-life folder which contains pockets of cards. Every pocket has a number, e.g. from 0 to 799.
+
+If we create a card { ZERO, RED, HEARTS }, it can go into pocket 0. If we create a card { THREE, BLUE, SPADES }, it can go into pocket 259. If we create another { THREE, BLUE, SPADES }, we check that pocket 259 is empty, and in this case, it already has a card. Therefore, we don't need to make a new one.
+
+The IDs of the two cards above are 0 and 259. So, I hope you can see the usefulness of this number. It works as an array index for the "folder of card pockets".
+
+Now, looking at the top-half of the function, the "assert" is there to check that "the number should be between 0x0 and 0xF", which is from the instruction just above the function.
+
+You can see we use "malloc" here, and the "assert_malloc" function to make sure that we have a proper heap memory for the card.
+
+
+
+"destroyCard"
+Free all the memory we've used in creating the card, which is just that one card.
+
+
+
+"cardSuit" and siblings
+Every card we create has properties, which include its suit, value and colour. From "Card.h", we can see the input "Card card" is equivalent to "struct _card *card", which means what we have is a pointer to a "struct _card".
+
+Therefore, "(*card)" is to dereference that pointer to get that "struct _card" value. "(*card).card_suit" is to get the "card_suit" member of the card value.
+
+
+
+"experiment_001" and "main"
+These at the bottom were a rudimentary test for me to see that the functions above just work fine. I only intended for them to be a rough check, and left them in for you guys in case you're a bit short on time and just want to see that it's working.
+
+
+
+
+
+In "Game.c"
+
+
+
+"assert_calloc"
+We have "assert_malloc" in "Card.c", so we don't need to define it again. I've also used "calloc" in "Game.c" though, so I wrote an equivalent assert function for it.
+
+
+
+"struct card_tracker"
+Skip this for now. I'll explain it below.
+
+
+
+"struct _game"
+I wondered what should go into this "struct", and thought, "what about filling it up variables which affect more than one player?". And so, that's what I try to do.
+
+"direction"
+I put in the direction, which has values in "Game.h".
+
+"cards_to_draw"
+I also saw that "DRAW_TWO" is more than just make the next player draw two cards; the next person could play another "DRAW_TWO" and that could pile up onto the following player. For this reason, we have "cards_to_draw".
+
+What other effects should we consider?
+
+"cards_distinct"
+Remember the "folder of card pockets" we covered a bit earlier? If we play a short game of ten cards, and the game ends, we shouldn't need to make the computer check 800 pockets to free all our cards. It should just check every pocket until it frees the final card. So, we put this value in "cards_distinct".
+
+"cards_in_total", "cards_in_deck"
+I just left these in there. Maybe they'll become useful, maybe not.
+
+"cards_max_dupe"
+In the "folder of card pockets", the pockets will contain a card and also a number which tells us how many of the same card exists. The number of the same cards which exists in a game must be less than or equal to "card_max_dupe".
+
+"struct card_tracker *cards_in_game"
+This is THE "folder of card pockets". Notice that it's a pointer to something; it's supposed to be an array. This was originally just an array of every card we ever create in a game, but then I couldn't find a place to store the number of duplicates. So I made a type which contains both a card and an integer. This type is "struct card_tracker", which you can find higher in the file.
+
+"playerMove *history_moves"
+Every turn, a player makes some moves. We record EVERY move in every turn by every player. We will record every move into an array, hence the pointer.
+
+"playerMove **history_index"
+Now, the thing is, if we record all the moves into an array, how do we know who played the move? Which turn did it take place? It's a bit of a challenge. So what I thought was, "try out a scenario".
+
+On turn zero, the first person makes three moves. We record all three moves in the array "history_moves", and we SHOULD remember the index which tells us where in the array we put the FIRST move. And on turn one, the second person makes four moves, we record the index which tells us where in the array we put that player's FIRST move. And so on.
+
+Thus, we keep track of a series of indices to "history_moves". I tried to explain it in the code with this:
+
+    /* Turn 0 might have 3 moves,
+     * Turn 1 might have 4 moves,
+     * Turn 2 might have 2 moves.
+     * 
+     * HISTORY_INDEX would have ...
+     * { (history_moves + 0),
+     *   (history_moves + 3),
+     *   (history_moves + 7),
+     *   (history_moves + 9),
+     *   ... }
+     */
+
+"turn"
+The current turn number, important for obvious reasons.
+
+"game_continue"
+We might not need this, but I'll just leave it in.
+
+
+
+"newGame"
+Here, we create the structure for a game. All of the variables above need to be put in use, so we try to allocate space in the heap for "new_game", where we store these variables.
+
+"struct card_tracker *cards_in_game"
+In addition, we need the array for our "folder of card pockets" to store cards in once we create them, and to track the number of duplicates in the game.
+
+"playerMove *history_moves"
+And we need to create an array to keep track of all the moves every player makes.
+
+"playerMove **history_index"
+And yet another array to keep track of every player's turn, so that we can look up which moves that player made.
+
+"(*new_game).direction" and siblings
+Initialise the variables.
+
+
+
+"destroyGame"
+Although freeing the "game" we created in the above "newGame" function seems like a good idea, we have a number of other items to free first.
+
+We need to free every card we created during the game. So, I used a "while" loop over our "folder of card pockets". For each "card pocket", if the computer finds a card, free the memory in the heap which we've allocated to that card. Do this for all the cards. We kept track of the number of distinct cards in the game in the variable "cards_distinct".
+
+Also, free our "folder of card pockets".
+
+And free the array which tracks every move and the array which locates every turn.
+
+
+
+
+
