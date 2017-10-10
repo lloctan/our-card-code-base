@@ -16,20 +16,20 @@
 int assert_malloc (void *this_pointer)
 {
 
-    // If unable to correctly allocate memory, raise an error
-    if (this_pointer == NULL) {
+  // If unable to correctly allocate memory, raise an error
+  if (this_pointer == NULL) {
 
-        printf
-        ("%s",
-        "Unable to allocate memory to the heap. \n");
+    printf
+      ("%s",
+	"Unable to allocate memory to the heap. \n");
 
-        perror
-        ("malloc");
+    perror
+      ("malloc");
 
-    };
+  };
 
-    // Else, we return successfully
-    return 0;
+  // Else, we return successfully
+  return 0;
 
 }
 
@@ -49,25 +49,24 @@ const int total_values = 16;
 struct _card
 {
 
-    /* Makes it easier to tell how many of the same
-     *card exists in the game. So we can have at
-     *most maybe two identical cards.
-     *
-     *card_id =
-     *  total_values *total_colors *card_suit +
-     *  total_values *card_color +
-     *  card_value
+  /* Makes it easier to tell how many of the same card exists in the
+   * game. So we can have at most maybe two identical cards.
+   *
+   * card_id =
+   *   total_values * total_colors * card_suit +
+   *   total_values * card_color +
+   *   card_value
    */
-    int card_id;
+  int card_id;
 
-    // { HEARTS DIAMONDS CLUBS ... }
-    suit card_suit;
+  // { HEARTS DIAMONDS CLUBS ... }
+  suit card_suit;
 
-    // { RED BLUE GREEN ... }
-    color card_color;
+  // { RED BLUE GREEN ... }
+  color card_color;
 
-    // { ZERO ONE TWO DRAW_TWO ... }
-    value card_value;
+  // { ZERO ONE TWO DRAW_TWO ... }
+  value card_value;
 
 };
 
@@ -80,27 +79,31 @@ Card newCard
 (value value, color color, suit suit)
 {
 
-    // Create a pointer to a "struct _card" and make room for the card
-    // in the heap.
-    Card new_card =
+  // Before anything, check that the "number" is within[0 15]
+  assert
+    ((0 <= value) && (value < 16));
+
+  // Create a pointer to a "struct _card" and make room for the card
+  // in the heap.
+  Card new_card =
     malloc (sizeof (struct _card));
 
-    // Make sure we allocate memory properly.
-    assert_malloc (new_card);
+  // Make sure we allocate memory properly.
+  assert_malloc (new_card);
 
-    // If successful, fill in the card properties, which include...
-    // unique ID, suit, colour and value.
-    (*new_card).card_id =
-    total_values *total_colors *suit +
-    total_values *color +
+  // If successful, fill in the card properties, which include...
+  // unique ID, suit, colour and value.
+  (*new_card).card_id =
+    total_values * total_colors * suit +
+    total_values * color +
     value;
 
-    (*new_card).card_suit = suit;
-    (*new_card).card_color = color;
-    (*new_card).card_value = value;
+  (*new_card).card_suit = suit;
+  (*new_card).card_color = color;
+  (*new_card).card_value = value;
 
-    // Now return it
-    return new_card;
+  // Now return it
+  return new_card;
 
 }
 
@@ -111,8 +114,8 @@ void destroyCard
 (Card card)
 {
 
-    // CARD is a pointer to the heap, so we need to free the memory.
-    free (card);
+  // CARD is a pointer to the heap, so we need to free the memory.
+  free (card);
 
 }
 
@@ -123,7 +126,7 @@ suit cardSuit
 (Card card)
 {
 
-    return (*card).card_suit;
+  return (*card).card_suit;
 
 }
 
@@ -134,7 +137,7 @@ value cardValue
 (Card card)
 {
 
-    return (*card).card_value;
+  return (*card).card_value;
 
 }
 
@@ -145,7 +148,7 @@ color cardColor
 (Card card)
 {
 
-    return (*card).card_color;
+  return (*card).card_color;
 
 }
 
@@ -153,7 +156,7 @@ color cardColor
 
 
 
-/* 
+/*
 int experiment_001
 (void)
 {
