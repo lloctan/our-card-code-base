@@ -16,20 +16,20 @@
 int assert_calloc (void *this_pointer)
 {
 
-  // If unable to correctly allocate memory, raise an error
-  if (this_pointer == NULL) {
+    // If unable to correctly allocate memory, raise an error
+    if (this_pointer == NULL) {
 
-    printf
-      ("%s",
-	"Unable to allocate memory to the heap. \n");
+        printf
+        ("%s",
+        "Unable to allocate memory to the heap. \n");
 
-    perror
-      ("calloc");
+        perror
+        ("calloc");
 
-  };
+    };
 
-  // Else, we return successfully
-  return 0;
+    // Else, we return successfully
+    return 0;
 
 }
 
@@ -47,11 +47,11 @@ const int player_moves_max = 400;
 struct card_tracker
 {
 
-  // Pointer to the card
-  Card card;
+    // Pointer to the card
+    Card card;
 
-  // Number of duplicates
-  int dupes;
+    // Number of duplicates
+    int dupes;
 
 };
 
@@ -60,80 +60,80 @@ struct card_tracker
 struct _game
 {
 
-  // Current direction
-  direction direction;
+    // Current direction
+    direction direction;
 
-  /* In case of "DRAW_TWO", this accumulates the number of cards a
-   * player has to pick up. So, if two people play consecutive
-   * "DRAW_TWO" cards, this value becomes 4. Once a person picks up
-   * cards, this reverts to 0.
-   */
-  int cards_to_draw;
+    /* In case of "DRAW_TWO", this accumulates the number of cards a
+     * player has to pick up. So, if two people play consecutive
+     * "DRAW_TWO" cards, this value becomes 4. Once a person picks up
+     * cards, this reverts to 0.
+     */
+    int cards_to_draw;
 
-  // Number of distinct cards which exist and need to free later
-  int cards_distinct;
+    // Number of distinct cards which exist and need to free later
+    int cards_distinct;
 
-  // Deck size plus cards in players' hands
-  int cards_in_total;
+    // Deck size plus cards in players' hands
+    int cards_in_total;
 
-  // Cards left in the deck
-  int cards_in_deck;
+    // Cards left in the deck
+    int cards_in_deck;
 
-  // Maximum number of identical cards possible
-  int cards_max_dupe;
+    // Maximum number of identical cards possible
+    int cards_max_dupe;
 
-  /* An array of cards in the game. If the game has at most 200
-   * different cards, the array will have 200 elements. Each element
-   * contains a struct with a unique card and the number of duplicates
-   * for that card.
-   */
-  struct card_tracker *cards_in_game;
+    /* An array of cards in the game. If the game has at most 200
+     * different cards, the array will have 200 elements. Each element
+     * contains a struct with a unique card and the number of duplicates
+     * for that card.
+     */
+    struct card_tracker *cards_in_game;
 
-  /* Tracks every move. Maybe when we write the functions for our
-   * AI next week, this will be important to make our AI as strong
-   * as possible against other teams' AIs. I'll be researching
-   * heavily on this.
-   *
-   * Turn 0 might have 3 turns,
-   * Turn 1 might have 4 turns,
-   * Turn 2 might have 2 turns.
-   *
-   * HISTORY_MOVES would have ...
-   * { turn-0-move-0, turn-0-move-1, turn-0-move-2,
-   *   turn-1-move-0, turn-1-move-1, turn-1-move-2,
-   *   turn-1-move-3, turn-2-move-0, turn-2-move-1,
-   *   ... }
-   */
-  playerMove *history_moves;
+    /* Tracks every move. Maybe when we write the functions for our
+     * AI next week, this will be important to make our AI as strong
+     * as possible against other teams' AIs. I'll be researching
+     * heavily on this.
+     *
+     * Turn 0 might have 3 turns,
+     * Turn 1 might have 4 turns,
+     * Turn 2 might have 2 turns.
+     *
+     * HISTORY_MOVES would have ...
+     * { turn-0-move-0, turn-0-move-1, turn-0-move-2,
+     *   turn-1-move-0, turn-1-move-1, turn-1-move-2,
+     *   turn-1-move-3, turn-2-move-0, turn-2-move-1,
+     *   ... }
+     */
+    playerMove *history_moves;
 
-  /* Each turn can have multiple moves. We need to know which move
-   * belongs to which turn. So here is a variable HISTORY_INDEX
-   * which is an array containing pointers to the above variable
-   * HISTORY_MOVES.
-   *
-   * Turn 0 might have 3 turns,
-   * Turn 1 might have 4 turns,
-   * Turn 2 might have 2 turns.
-   *
-   * HISTORY_INDEX would have ...
-   * { (history_moves + 0),
-   *   (history_moves + 3),
-   *   (history_moves + 4),
-   *   (history_moves + 6),
-   *   ... }
-   */
-  playerMove **history_index;
+    /* Each turn can have multiple moves. We need to know which move
+     * belongs to which turn. So here is a variable HISTORY_INDEX
+     * which is an array containing pointers to the above variable
+     * HISTORY_MOVES.
+     *
+     * Turn 0 might have 3 turns,
+     * Turn 1 might have 4 turns,
+     * Turn 2 might have 2 turns.
+     *
+     * HISTORY_INDEX would have ...
+     * { (history_moves + 0),
+     *   (history_moves + 3),
+     *   (history_moves + 4),
+     *   (history_moves + 6),
+     *   ... }
+     */
+    playerMove **history_index;
 
-  // Current turn number
-  int turn;
+    // Current turn number
+    int turn;
 
-  /* We can add more variables here. I'm not quite sure what some
-   * of the functions in "Game.h" mean, like "numOfSuit" or
-   * "numOfColor".
-   */
+    /* We can add more variables here. I'm not quite sure what some
+     * of the functions in "Game.h" mean, like "numOfSuit" or
+     * "numOfColor".
+     */
 
-  // Convenience variable?
-  int game_continue;
+    // Convenience variable?
+    int game_continue;
 
 };
 
@@ -153,65 +153,65 @@ struct _game
 // the fifth to player 0, and so on until each player has 7 cards.
 Game newGame
 (int deckSize, value values[],
-  color colors[], suit suits[])
+color colors[], suit suits[])
 {
 
-  // Allocate memory in the heap for a new game
-  Game new_game =
+    // Allocate memory in the heap for a new game
+    Game new_game =
     malloc (sizeof (struct _game));
 
-  // Needs to allocate memory correctly
-  assert_malloc (new_game);
+    // Needs to allocate memory correctly
+    assert_malloc (new_game);
 
-  // Allocate memory for an array which will keep track of the
-  // cards in the game. This array will only contain pointers.
-  // The "struct card_tracker" contains a pointer and an integer.
-  struct card_tracker *cards_in_game =
+    // Allocate memory for an array which will keep track of the
+    // cards in the game. This array will only contain pointers.
+    // The "struct card_tracker" contains a pointer and an integer.
+    struct card_tracker *cards_in_game =
     calloc
     (total_suits * total_colors * total_values,
-      sizeof (struct card_tracker));
+    sizeof (struct card_tracker));
 
-  assert_calloc (cards_in_game);
+    assert_calloc (cards_in_game);
 
-  // Allocate memory for an array which tracks all the moves so
-  // far. This may be useful when we try to implement an AI
-  playerMove *history_moves =
+    // Allocate memory for an array which tracks all the moves so
+    // far. This may be useful when we try to implement an AI
+    playerMove *history_moves =
     calloc
     (player_moves_max,
-      sizeof (struct _playerMove));
+    sizeof (struct _playerMove));
 
-  assert_calloc (history_moves);
+    assert_calloc (history_moves);
 
-  // Provide values to the new game
+    // Provide values to the new game
 
-  // Presume the game begins clockwise
-  (*new_game).direction = CLOCKWISE;
+    // Presume the game begins clockwise
+    (*new_game).direction = CLOCKWISE;
 
-  // Number of cards which the current player needs to draw
-  (*new_game).cards_to_draw = 0;
+    // Number of cards which the current player needs to draw
+    (*new_game).cards_to_draw = 0;
 
-  // Number of cards in total
-  (*new_game).cards_in_total = deckSize;
+    // Number of cards in total
+    (*new_game).cards_in_total = deckSize;
 
-  // Number of cards in the deck
-  (*new_game).cards_in_deck = deckSize;
+    // Number of cards in the deck
+    (*new_game).cards_in_deck = deckSize;
 
-  // Maximum number of cards to have duplicates of
-  // (*new_game).cards_max_dupe = ???
+    // Maximum number of cards to have duplicates of
+    // (*new_game).cards_max_dupe = ???
 
-  // Keep track of the cards in the game
-  (*new_game).cards_in_game = cards_in_game;
+    // Keep track of the cards in the game
+    (*new_game).cards_in_game = cards_in_game;
 
-  // Keep track of every move in the game
-  (*new_game).history_moves = history_moves;
+    // Keep track of every move in the game
+    (*new_game).history_moves = history_moves;
 
-  // Current turn
-  (*new_game).turn = 0;
+    // Current turn
+    (*new_game).turn = 0;
 
-  // Continue
-  (*new_game).game_continue = 1;
+    // Continue
+    (*new_game).game_continue = 1;
 
-  return new_game;
+    return new_game;
 
 }
 
@@ -224,36 +224,36 @@ void destroyGame
 (Game game)
 {
 
-  // Firstly, free all the cards in the game. The number of cards
-  // in the game is CARDS_DISTINCT.
-  struct card_tracker *card_index =
+    // Firstly, free all the cards in the game. The number of cards
+    // in the game is CARDS_DISTINCT.
+    struct card_tracker *card_index =
     ((*game).cards_in_game - 1);
 
-  while
+    while
     ((card_index += 1)
-     && (0 < (*game).cards_distinct)) {
+    && (0 < (*game).cards_distinct)) {
 
-    // If we find a distinct card, decrement CARDS_DISTINCT and
-    // free the memory which contains the card
-    if ((*card_index).card == NULL);
-    {
+        // If we find a distinct card, decrement CARDS_DISTINCT and
+        // free the memory which contains the card
+        if ((*card_index).card == NULL);
+        {
 
-      (*game).cards_distinct -= 1;
+            (*game).cards_distinct -= 1;
 
-      free ((*card_index).card);
+            free ((*card_index).card);
+
+        }
 
     }
 
-  }
+    // Now free the variable which tracks these cards
+    free ((*game).cards_in_game);
 
-  // Now free the variable which tracks these cards
-  free ((*game).cards_in_game);
+    // Free the variable which tracks every move
+    free ((*game).history_moves);
 
-  // Free the variable which tracks every move
-  free ((*game).history_moves);
-
-  // And finally, clear the game
-  free (game);
+    // And finally, clear the game
+    free (game);
 
 }
 
@@ -267,7 +267,7 @@ int numCards
 (Game game)
 {
 
-  return (*game).cards_in_deck;
+    return (*game).cards_in_deck;
 
 }
 
@@ -296,7 +296,7 @@ int numOfValue
 int currentPlayer (Game game)
 {
 
-  return ((*game).turn % NUM_PLAYERS);
+    return ((*game).turn % NUM_PLAYERS);
 
 }
 
@@ -312,7 +312,7 @@ int currentTurn
 (Game game)
 {
 
-  return (*game).turn;
+    return (*game).turn;
 
 }
 
@@ -332,7 +332,7 @@ direction playDirection
 (Game game)
 {
 
-  return (*game).direction;
+    return (*game).direction;
 
 }
 
@@ -353,8 +353,8 @@ int numTurns
 (Game game)
 {
 
-  // Since we begin at turn zero, we need to add one to the result.
-  return ((*game).turn + 1);
+    // Since we begin at turn zero, we need to add one to the result.
+    return ((*game).turn + 1);
 
 }
 
@@ -368,29 +368,29 @@ int turnMoves
 (Game game, int turn)
 {
 
-  /* Turn 0 might have 3 turns,
-   * Turn 1 might have 4 turns,
-   * Turn 2 might have 2 turns.
-   *
-   * HISTORY_INDEX would have ...
-   * { (history_moves + 0),
-   *   (history_moves + 3),
-   *   (history_moves + 4),
-   *   (history_moves + 6),
-   *   ... }
-   *
-   * Remember this? This means we can work out the number of
-   * moves by pointer-arithmetic.
-   */
+    /* Turn 0 might have 3 turns,
+     * Turn 1 might have 4 turns,
+     * Turn 2 might have 2 turns.
+     *
+     * HISTORY_INDEX would have ...
+     * { (history_moves + 0),
+     *   (history_moves + 3),
+     *   (history_moves + 4),
+     *   (history_moves + 6),
+     *   ... }
+     *
+     * Remember this? This means we can work out the number of
+     * moves by pointer-arithmetic.
+     */
 
-  playerMove **index =
+    playerMove **index =
     (*game).history_index + turn;
 
-  unsigned int moves =
+    unsigned int moves =
     (*(index + 1)) - (*index);
 
-  // Divide the result by the number of bytes of the pointer
-  return (moves / (sizeof (playerMove *)));
+    // Divide the result by the number of bytes of the pointer
+    return (moves / (sizeof (playerMove *)));
 
 }
 
@@ -401,9 +401,9 @@ playerMove pastMove
 (Game game, int turn, int move)
 {
 
-  // Look at the game's history, find the turn, find the move and
-  // return it
-  return
+    // Look at the game's history, find the turn, find the move and
+    // return it
+    return
     (*(*((*game).history_index + turn) + move));
 
 }
@@ -486,7 +486,7 @@ int gameWinner
 
 
 
-/*
+/* 
 int experiment_002
 (void)
 {
