@@ -118,8 +118,8 @@ struct _game
      * HISTORY_INDEX would have ...
      * { (history_moves + 0),
      *   (history_moves + 3),
-     *   (history_moves + 4),
-     *   (history_moves + 6),
+     *   (history_moves + 7),
+     *   (history_moves + 9),
      *   ... }
      */
     playerMove **history_index;
@@ -375,8 +375,8 @@ int turnMoves
      * HISTORY_INDEX would have ...
      * { (history_moves + 0),
      *   (history_moves + 3),
-     *   (history_moves + 4),
-     *   (history_moves + 6),
+     *   (history_moves + 7),
+     *   (history_moves + 9),
      *   ... }
      *
      * Remember this? This means we can work out the number of
