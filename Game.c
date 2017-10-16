@@ -35,6 +35,7 @@ int assert_calloc (void *this_pointer)
 
 // Constants
 const int player_moves_max = 400;
+const int player_hand_len = 12;
 
 
 
@@ -62,6 +63,12 @@ struct _game
 
     // Current direction
     direction direction;
+
+    /* In initial deck, the number of cards in the deck initially.
+     * This keep track of the number of all cards, the number for a
+     * particular value, colour or suit.
+     */
+    int *cards_initially;
 
     /* In case of "DRAW_TWO", this accumulates the number of cards a
      * player has to pick up. So, if two people play consecutive
@@ -124,6 +131,12 @@ struct _game
      */
     playerMove **history_index;
 
+    /* Keep track of the cards in each players' hands. Each element
+     * represents one player, and contains an array of pointers to
+     * cards.
+     */
+    Card **player_hands;
+
     // Current turn number
     int turn;
 
@@ -139,6 +152,28 @@ struct _game
 
 
 
+
+
+// Fill in the cards which now exist in the game, and keep track of
+// the number of each value, colour and suit which exists in it
+int establish_cards
+(int *cards_initially, Card **cards_in_game,
+int deckSize, value values[],
+color colors[], suit suits[])
+{
+
+    // First element contains the size of the initial deck
+    cards_initially[0] = deckSize;
+
+    int counter = deckSize;
+    while ((counter += 1) <= deckSize)
+    {
+
+        // CARDS_INITIALLY will now have a frequency mapping like so:
+        // { all_cards, ZERO, ONE, DRAW_TWO, THREE, ... }
+        cards_initially[+ 1] } }
+
+;
 
 
 // Create a new game engine.
@@ -163,12 +198,23 @@ color colors[], suit suits[])
     // Needs to allocate memory correctly
     assert_malloc (new_game);
 
+    // The first element contains the initial deck size, the next
+    // values will be of all the card suits, then the card colours
+    // and finally the card values
+    int *cards_initially =
+    calloc
+    ((sizeof (int))
+    * (total_suits + total_colors + total_values + 1));
+
+    // Needs to allocate memory correctly
+    assert_calloc (cards_initially);
+
     // Allocate memory for an array which will keep track of the
     // cards in the game. This array will only contain pointers.
     // The "struct card_tracker" contains a pointer and an integer.
     struct card_tracker *cards_in_game =
     calloc
-    (total_suits * total_colors * total_values,
+    (total_suits *total_colors *total_values,
     sizeof (struct card_tracker));
 
     assert_calloc (cards_in_game);
@@ -182,8 +228,8 @@ color colors[], suit suits[])
 
     assert_calloc (history_moves);
 
-    // Allocate memory for an array which keeps track of every 
-    // player's turn, so we can look up their moves in HISTORY_MOVES. 
+    // Allocate memory for an array which keeps track of every
+    // player's turn, so we can look up their moves in HISTORY_MOVES.
     playerMove **history_index =
     calloc
     (player_moves_max,
@@ -191,10 +237,37 @@ color colors[], suit suits[])
 
     assert_calloc (history_index);
 
+    // Allocate memory for an array which keeps track of the cards
+    // in each players' hands. Each element represents one player,
+    // and contains an array of pointers to cards.
+    Card **player_hands =
+    malloc
+    ((sizeof (Card *))
+    *NUM_PLAYERS);
+
+    assert_malloc (player_hands);
+
+    int player_num = -1;
+    while ((player_num += 1) < NUM_PLAYERS)
+    {
+
+        player_hands[player_num] =
+        calloc
+        ((sizeof (Card))
+        *player_hand_len);
+
+        assert_calloc (player_hands[player_num]);
+
+    }
+
+
     // Provide values to the new game
 
     // Presume the game begins clockwise
     (*new_game).direction = CLOCKWISE;
+
+    // Keep track of the initial deck
+    (*new_game).cards_initially = cards_initially;
 
     // Number of cards which the current player needs to draw
     (*new_game).cards_to_draw = 0;
@@ -214,14 +287,25 @@ color colors[], suit suits[])
     // Keep track of every move in the game
     (*new_game).history_moves = history_moves;
 
-    // Keep track of every turn in the game 
+    // Keep track of every turn in the game
     (*new_game).history_index = history_index;
+
+    // Keep track of cards in each players' hands
+    (*new_game).player_hands = player_hands;
 
     // Current turn
     (*new_game).turn = 0;
 
     // Continue
     (*new_game).game_continue = 1;
+
+
+    // Fill in the cards which now exist in the game, and keep track
+    // of the number of each value, colour and suit which exists in
+    // it
+    establish_cards
+    (cards_initially, cards_in_game,
+    deckSize, values, colors, suits);
 
     return new_game;
 
@@ -264,7 +348,7 @@ void destroyGame
     // Free the variable which tracks every move
     free ((*game).history_moves);
 
-    // Free the variable which notes every turn 
+    // Free the variable which notes every turn
     free ((*game).history_index);
 
     // And finally, clear the game
@@ -402,7 +486,7 @@ int turnMoves
     (*game).history_index + turn;
 
     unsigned int moves =
-    (*(index + 1)) - (*index);
+    (* (index + 1)) - (*index);
 
     // Divide the result by the number of bytes of the pointer
     return (moves / (sizeof (playerMove *)));
@@ -419,7 +503,7 @@ playerMove pastMove
     // Look at the game's history, find the turn, find the move and
     // return it
     return
-    (*(*((*game).history_index + turn) + move));
+    (* (* ((*game).history_index + turn) + move));
 
 }
 
@@ -469,8 +553,8 @@ Card handCard
 // A player must draw a card if they are unable to discard a card.
 //
 // This check should verify that:
-// * The card being played is in the player's hand
-// * The player has played at least one card before finishing their turn,
+// *The card being played is in the player's hand
+// *The player has played at least one card before finishing their turn,
 // unless a draw-two was played, in which case the player may not
 // play a card, and instead must draw the appropriate number of cards.
 int isValidMove
