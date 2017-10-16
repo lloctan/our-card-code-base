@@ -104,7 +104,7 @@ struct _game
 
     /* An array of cards in the game. If the game has at most 200
      * different cards, the array will have 200 elements. Each element
-     * contains a struct with a unique card and the number of duplicates
+     * contains a "struct" with a unique card and the number of duplicates
      * for that card.
      *
      * cards_in_game
@@ -122,18 +122,18 @@ struct _game
 
     /* In initial deck, the number of cards in the deck initially.
      * This keep track of the number of all cards, the number for a
-     * particular value, colour or suit.
+     * particular colour, suit or value.
      *
      * cards_initially
      * v
-     * [ini-deck-len      value-len      suit-len      colour-len]
+     * [ini-deck-len      color-len      suit-len    value-len]
      *   v                 v              v             v
      *  [400]
-     *                    [32 21 4 12 16 18 ...]
+     *                    [81 69 94 88 68]
      *
      *                                   [82 90 74 82 72]
      *
-     *                                                 [81 69 94 88 68]
+     *                                                 [32 21 ...]
      */
     int **cards_initially;
 
@@ -260,8 +260,8 @@ int turn_list_free
 // Fill in the cards which now exist in the game, and keep track of
 // the number of each value, colour and suit which exists in it
 int establish_cards
-(int **cards_initially,
-Card **cards_in_game,
+(Card **cards_in_game,
+int **cards_initially,
 int deckSize, color colors[],
 suit suits[], value values[],
 int cards_max_dupe)
@@ -269,7 +269,7 @@ int cards_max_dupe)
 
     /* In initial deck, the number of cards in the deck initially.
      * This keep track of the number of all cards, the number for a
-     * particular value, colour or suit.
+     * particular colour, suit or value.
      *
      * cards_initially
      * v
@@ -486,7 +486,7 @@ color colors[], suit suits[])
     // of the number of each colour, suit and value which exists in
     // it
     establish_cards
-    (cards_initially, cards_in_game,
+    (cards_in_game, cards_initially,
     deckSize, colors, suits, values,
     (*new_game).cards_max_dupe);
 
