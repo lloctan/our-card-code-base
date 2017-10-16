@@ -36,8 +36,8 @@ int assert_malloc (void *this_pointer)
 // I couldn't find a way to add up the number of elements in the "enums",
 // so I'll hard-code the constants here. You can find the "enums" in
 // "card.h"
-const int total_suits = 5;
 const int total_colors = 5;
+const int total_suits = 5;
 const int total_values = 16;
 
 
@@ -53,17 +53,17 @@ struct _card
      * game. So we can have at most maybe two identical cards.
      *
      * card_id =
-     *   total_values * total_colors * card_suit +
-     *   total_values * card_color +
+     *   total_values *total_suits *card_color +
+     *   total_values *card_suit +
      *   card_value
      */
     int card_id;
 
-    // { HEARTS DIAMONDS CLUBS ... }
-    suit card_suit;
-
     // { RED BLUE GREEN ... }
     color card_color;
+
+    // { HEARTS DIAMONDS CLUBS ... }
+    suit card_suit;
 
     // { ZERO ONE TWO DRAW_TWO ... }
     value card_value;
@@ -94,12 +94,12 @@ Card newCard
     // If successful, fill in the card properties, which include...
     // unique ID, suit, colour and value.
     (*new_card).card_id =
-    total_values * total_colors * suit +
-    total_values * color +
+    total_values *total_suits *color +
+    total_values *suit +
     value;
 
-    (*new_card).card_suit = suit;
     (*new_card).card_color = color;
+    (*new_card).card_suit = suit;
     (*new_card).card_value = value;
 
     // Now return it
@@ -168,15 +168,15 @@ int experiment_001
     ("%s \n%d %d %d %d \n\n",
       "Card_one. Identification, three, blue, spades.",
       (*card_one).card_id,
-      (*card_one).card_value,
       (*card_one).card_color,
-      (*card_one).card_suit);
+      (*card_one).card_suit,
+      (*card_one).card_value);
 
   printf
     ("%s \n%d %d %d \n\n",
       "Card_one. Three, blue, spades.",
-      (int) cardSuit (card_one),
       (int) cardColor (card_one),
+      (int) cardSuit (card_one),
       (int) cardValue (card_one));
 
   destroyCard
