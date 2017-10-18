@@ -591,24 +591,47 @@ int numOfSuit
     // assuming cards_in_game is an array
     while (i < deckSize)) {
         if ((*game).cards_in_game[i] == suit) {
-                count++
+                count++;
         }
         i++;
-    }
-        
+    }  
     return count;
 }
 
 // Get the number of cards in the initial deck of a particular color.
 int numOfColor
-(Game game, color color);
+(Game game, color color)
+{
+    int i = 0;
+    int count = 0;
+    // assuming cards_in_game is an array
+    while (i < deckSize)) {
+        if ((*game).cards_in_game[i] == color) {
+                count++;
+        }
+        i++;
+    }  
+    return count;
+}
 
 
 
 // Get the number of cards in the initial deck of a particular value.
 int numOfValue
-(Game game, value value);
-
+(Game game, value value)
+{
+    // made a while loop to check each node value if they correspond to the suit,
+    int i = 0;
+    int count = 0;
+    // assuming cards_in_game is an array
+    while (i < deckSize)) {
+        if ((*game).cards_in_game[i] == value) {
+                count++;
+        }
+        i++;
+    }  
+    return count;
+}
 
 
 // Get the number of the player whose turn it is.
