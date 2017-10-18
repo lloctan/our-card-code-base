@@ -583,9 +583,21 @@ int numCards
 // Get the number of cards in the initial deck of a particular
 // suit.
 int numOfSuit
-(Game game, suit suit);
-
-
+(Game game, suit suit)
+{
+    // made a while loop to check each node value if they correspond to the suit,
+    int i = 0;
+    int count = 0;
+    // assuming cards_in_game is an array
+    while (i < deckSize)) {
+        if ((*game).cards_in_game[i] == suit) {
+                count++
+        }
+        i++;
+    }
+        
+    return count;
+}
 
 // Get the number of cards in the initial deck of a particular color.
 int numOfColor
