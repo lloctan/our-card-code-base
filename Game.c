@@ -259,7 +259,7 @@ int turn_list_free
 
 // Fill in the cards which now exist in the game, and keep track of
 // the number of each value, colour and suit which exists in it
-int establish_cards
+int fill_in_remaining_empty_variables
 (Card **cards_in_game,
 int **cards_initially,
 int deckSize, color colors[],
@@ -363,7 +363,7 @@ int cards_max_dupe)
 
         // Also need to make sure we are within duplicate-limits.
         else if
-        ((cards_in_game[card_id]).dupes <= cards_max_dupe)
+        ((cards_in_game[card_id]).dupes < cards_max_dupe)
         {
 
             (cards_in_game[card_id]).dupes += 1;
@@ -427,19 +427,19 @@ color colors[], suit suits[])
 
     cards_initially[0] =
     malloc ((sizeof (int)) *1);
-    assert_calloc (cards_initially[0]);
+    assert_malloc (cards_initially[0]);
 
     cards_initially[1] =
     malloc ((sizeof (int)) *total_colors);
-    assert_calloc (cards_initially[1]);
+    assert_malloc (cards_initially[1]);
 
     cards_initially[2] =
     malloc ((sizeof (int)) *total_suits);
-    assert_calloc (cards_initially[2]);
+    assert_malloc (cards_initially[2]);
 
     cards_initially[3] =
     malloc ((sizeof (int)) *total_values);
-    assert_calloc (cards_initially[3]);
+    assert_malloc (cards_initially[3]);
 
     // Allocate memory for an array which keeps track of the cards
     // in each players' hands. Each element represents one player,
@@ -485,7 +485,7 @@ color colors[], suit suits[])
     // Fill in the cards which now exist in the game, and keep track
     // of the number of each colour, suit and value which exists in
     // it
-    establish_cards
+    fill_in_remaining_empty_variables
     (cards_in_game, cards_initially,
     deckSize, colors, suits, values,
     (*new_game).cards_max_dupe);
