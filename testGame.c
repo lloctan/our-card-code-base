@@ -12,7 +12,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "Card.c"
+#include "Card.h"
+#include "Game.h"
+
+// #include "Card.c"
 #include "Game.c"
 
 
@@ -75,7 +78,7 @@ value value_all[] =
 char *value_names[] =
 {[ZERO] = "ZERO",
     [ONE] = "ONE",
-    [DRAW] = "DRAW_TWO",
+    [DRAW_TWO] = "DRAW_TWO",
     [THREE] = "THREE",
     [FOUR] = "FOUR",
     [FIVE] = "FIVE",
@@ -377,7 +380,7 @@ int deck_value_tracker[value_max])
 
 }
 
-int game_make_deck_intermediate
+int game_make_deck_numbers_only
 (int game_number,
 color deck_colors[deck_size],
 suit deck_suits[deck_size],
@@ -439,7 +442,13 @@ int deck_value_tracker[value_max])
 // Once we have a new game, check that the functions relating
 // to the cards in the deck are working
 int game_check_deck
-(Game new_game)
+(Game new_game,
+color deck_colors[deck_size],
+suit deck_suits[deck_size],
+value deck_values[deck_size],
+int deck_color_tracker[color_max],
+int deck_suit_tracker[suit_max],
+int deck_value_tracker[value_max])
 {
 
     // Acutally not sure about this!! Does "initial deck" mean
@@ -450,7 +459,7 @@ int game_check_deck
     deck_size, numCards (new_game));
 
     assert
-    (deck_size, numCards (new_game));
+    (deck_size == numCards (new_game));
 
     printf
     ("%s \n",
@@ -461,14 +470,14 @@ int game_check_deck
     {
 
         printf
-        ("%s %03d %03d \n",
-        "  ... " (color_names[count]) ".",
+        ("%s %s. %03d %03d \n",
+        "  ... ", (color_names[count]),
         deck_color_tracker[count],
-        numOfColor (new_game));
+        numOfColor (new_game, color_all[count]));
 
         assert
         (deck_color_tracker[count] ==
-        numOfColor (new_game));
+        numOfColor (new_game, color_all[count]));
 
     }
 
@@ -477,14 +486,14 @@ int game_check_deck
     {
 
         printf
-        ("%s %03d %03d \n",
-        "  ... " (suit_names[count]) ".",
+        ("%s %s. %03d %03d \n",
+        "  ... ", (suit_names[count]),
         deck_suit_tracker[count],
-        numOfSuit (new_game));
+        numOfSuit (new_game, suit_all[count] ));
 
         assert
         (deck_suit_tracker[count] ==
-        numOfSuit (new_game));
+        numOfSuit (new_game, suit_all[count]));
 
     }
 
@@ -493,14 +502,14 @@ int game_check_deck
     {
 
         printf
-        ("%s %03d %03d \n",
-        "  ... " (value_names[count]) ".",
+        ("%s %s. %03d %03d \n",
+        "  ... ", (value_names[count]),
         deck_value_tracker[count],
-        numOfValue (new_game));
+        numOfValue (new_game, value_all[count]));
 
         assert
         (deck_value_tracker[count] ==
-        numOfValue (new_game));
+        numOfValue (new_game, value_all[count]));
 
     }
 
@@ -567,11 +576,11 @@ value deck_values[deck_size])
             [in_hand_initially * player + in_hand_index];
 
             suit_from_ini_deck =
-            deck_suit
+            deck_suits
             [in_hand_initially * player + in_hand_index];
 
             value_from_ini_deck =
-            deck_value
+            deck_values
             [in_hand_initially * player + in_hand_index];
 
             // With "handCard" function, retrieve the card and then its
@@ -590,14 +599,16 @@ value deck_values[deck_size])
 
             // Compare the properties
             printf
-            ("%s %03d %s \n",
-            "  ... ", in_hand_index, ". ("
-            (color_names[color_from_ini_deck]) " "
-            (suit_names[suit_from_ini_deck]) " "
-            (value_names[value_from_ini_deck]) ") ("
-            (color_names[color_from_hand]) " "
-            (suit_names[suit_from_hand]) " "
-            (value_names[value_from_hand]) ") ");
+            ("%s %03d %s %s %s %s %s %s %s %s %s \n",
+            "  ... ", in_hand_index, ". (",
+            (color_names[color_from_ini_deck]),
+            (suit_names[suit_from_ini_deck]),
+            (value_names[value_from_ini_deck]),
+            ") (",
+            (color_names[color_from_hand]),
+            (suit_names[suit_from_hand]),
+            (value_names[value_from_hand]),
+            ")");
 
             assert (color_from_ini_deck == color_from_hand);
             assert (suit_from_ini_deck == suit_from_hand);
@@ -613,7 +624,7 @@ value deck_values[deck_size])
     // Now check the first card in the discard pile. It should be the
     // first card in the deck after distributing cards to players
     color_from_ini_deck =
-    deck_colors[in_hand_iniitially * NUM_PLAYERS];
+    deck_colors[in_hand_initially * NUM_PLAYERS];
 
     suit_from_ini_deck =
     deck_suits[in_hand_initially * NUM_PLAYERS];
@@ -624,15 +635,17 @@ value deck_values[deck_size])
     Card card_in_discard = topDiscard (new_game);
 
     printf
-    ("%s \n%s \n",
+    ("%s \n%s %s %s %s %s %s %s %s %s \n",
     "The first card in the discard pile.",
-    "  ... ("
-    color_names[color_from_ini_deck] " "
-    suit_names[suit_from_ini_deck] " "
-    value_names[value_from_ini_deck] ") ("
-    color_names[(*card_in_discard).card_color] " "
-    suit_names[(*card_in_discard).card_suit] " "
-    value_names[(*card_in_discard).card_value] ") ");
+    "  ... (",
+    color_names[color_from_ini_deck],
+    suit_names[suit_from_ini_deck],
+    value_names[value_from_ini_deck],
+    ") (",
+    color_names[(*card_in_discard).card_color],
+    suit_names[(*card_in_discard).card_suit],
+    value_names[(*card_in_discard).card_value],
+    ")");
 
     assert
     (deck_colors[in_hand_initially * NUM_PLAYERS] ==
@@ -661,58 +674,58 @@ int assert_turn_and_player
     printf
     ("%s %03d %03d \n",
     "Current turn.",
-    turn, currentTurn (game));
+    turn, currentTurn (new_game));
 
     assert
-    (turn, currentTurn (game));
+    (turn == currentTurn (new_game));
 
     // Similarly for current player
     printf
     ("%s %03d %03d \n",
     "Current player.",
-    player, currentPlayer (game));
+    player, currentPlayer (new_game));
 
     assert
-    (player, currentPlayer (game));
+    (player == currentPlayer (new_game));
 
     return 0;
 
 }
 
 int game_announce_check_and_make_move
-(Game new_game, move)
+(Game new_game, playerMove move)
 {
 
-    if ((*move).action == END_TURN)
+    if (move.action == END_TURN)
     {
 
         printf
         ("%s \n\n", "END_TURN");
 
     }
-    else if ((*move).action == PLAY_CARD)
+    else if (move.action == PLAY_CARD)
     {
 
-        Card card = (*move).card;
+        Card card = move.card;
 
         printf
-        ("%s %s \n",
-        action_names[(*move).action],
-        "("
-        (color_names[(*card).card_color]) " "
-        (suit_names[(*card).card_suit]) " "
-        (value_names[(*card).card_value])
+        ("%s %s %s %s %s %s \n",
+        action_names[move.action],
+        "(",
+        (color_names[(*card).card_color]),
+        (suit_names[(*card).card_suit]),
+        (value_names[(*card).card_value]),
         ")");
 
     }
-    else if ((*move).card == DECLARE)
+    else if (move.action == DECLARE)
     {
 
-        Card card = (*move).card;
+        Card card = move.card;
 
         printf
         ("%s %s %s \n",
-        action_names[(*move).action],
+        action_names[move.action],
         "DECLARE",
         color_names[(*card).card_color]);
 
@@ -722,7 +735,7 @@ int game_announce_check_and_make_move
 
         printf
         ("%s \n",
-        action_names[(*move).action]);
+        action_names[move.action]);
 
     }
 
@@ -745,8 +758,8 @@ int game_play_basic
 
     playerMove move;
     int cards_in_hand;
-    player = 0;
-    turn = -1;
+    int player = 0;
+    int turn = -1;
 
     // Only when the most recent player has zero cards left in
     // their hand does the game end.
@@ -771,13 +784,13 @@ int game_play_basic
         // Our move will always be the first card
         // ("RED" "HEARTS" "ONE").
         // But if no cards left, end turn
-        if (0 < cands_in_hand)
+        if (0 < cards_in_hand)
         {
 
             if (cards_in_hand == 3)
             {
 
-                (*move).action = SAY_TRIO;
+                move.action = SAY_TRIO;
                 game_announce_check_and_make_move
                 (new_game, move);
 
@@ -785,7 +798,7 @@ int game_play_basic
             else if (cards_in_hand == 2)
             {
 
-                (*move).action = SAY_DUO;
+                move.action = SAY_DUO;
                 game_announce_check_and_make_move
                 (new_game, move);
 
@@ -793,26 +806,30 @@ int game_play_basic
             else if (cards_in_hand == 1)
             {
 
-                (*move).action = SAY_UNO;
+                move.action = SAY_UNO;
                 game_announce_check_and_make_move
                 (new_game, move);
 
             }
 
             // Always the first card!
-            (*move).action = PLAY_CARD;
-            (*move).card = handCard (new_game, 0);
+            move.action = PLAY_CARD;
+            move.card = handCard (new_game, 0);
             game_announce_check_and_make_move
             (new_game, move);
 
             // History should now contain this move. We should
             // verify it.Look at the first move. Does it match
             // MOVE?
-            assert (move == pastMove (new_game, turn, 0));
+            playerMove in_pastMove =
+            pastMove (new_game, turn, 0);
+
+            assert
+            ((& move) == (& in_pastMove));
 
         }
 
-        (*move).action = END_TURN;
+        move.action = END_TURN;
         game_announce_check_and_make_move
         (new_game, move);
 
@@ -849,19 +866,18 @@ int game_all_basic
     // Make one game, all cards are ("RED" "HEARTS" "ONE")
     printf
     ("%s %03d \n%s \n", "New game.",
-    count_games, "Deck of cards.");
+    0, "Deck of cards.");
 
     // For checking deck-making functions
     game_make_deck_basic
-    (count_games,
-    deck_colors, deck_suits, deck_values,
+    (deck_colors, deck_suits, deck_values,
     deck_color_tracker,
     deck_suit_tracker,
     deck_value_tracker);
 
     new_game =
     newGame
-    (deckSize, deck_colors, deck_suits, deck_values);
+    (deck_size, deck_values, deck_colors, deck_suits);
 
     printf
     ("%s %d \n",
@@ -871,7 +887,11 @@ int game_all_basic
     // For checking deck-values in a new game. With "newGame", did we
     // initialise properly?
     game_check_deck
-    (new_game);
+    (new_game,
+    deck_colors, deck_suits, deck_values,
+    deck_color_tracker,
+    deck_suit_tracker,
+    deck_value_tracker);
 
     // When we call "newGame", from the deck, each player receives
     // seven cards and the next card on the deck becomes the first in
@@ -889,7 +909,7 @@ int game_all_basic
     ("%s \n",
     "Cards in players hands.");
 
-    int player = NUM_PLAYERS;
+    player = NUM_PLAYERS;
     while (0 <= (player -= 1))
     {
 
@@ -906,10 +926,10 @@ int game_all_basic
     // Who wins? The one who started, of course, player 0
     printf
     ("%s %03d %s \n",
-    "Player", gameWinner (game), "wins!");
+    "Player", gameWinner (new_game), "wins!");
 
     assert
-    (gameWinner (game) == 0);
+    (gameWinner (new_game) == 0);
 
     // Finish up
     destroyGame
@@ -948,6 +968,10 @@ int game_all_numbers_only
     int deck_suit_tracker[suit_max] = { 0 };
     int deck_value_tracker[value_max] = { 0 };
 
+    // Miscellane
+    int turn;
+    int player;
+
     printf
     ("%s \n\n",
     "game_new_and_destroy_game");
@@ -970,7 +994,7 @@ int game_all_numbers_only
 
         new_game =
         newGame
-        (deckSize, deck_colors, deck_suits, deck_values);
+        (deck_size, deck_values, deck_colors, deck_suits);
 
         printf
         ("%s %d \n",
@@ -1018,9 +1042,12 @@ int main
 
     card_main ();
 
+    printf
+    ("%s \n\n\n",
+    "Success!! =) ");
+
     return 0;
 
 }
-
 
 

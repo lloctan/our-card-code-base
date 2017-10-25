@@ -57,7 +57,7 @@ struct _card
      *   total_values *card_suit +
      *   card_value
      */
-    int card_id;
+    // int card_id;
 
     // { RED BLUE GREEN ... }
     color card_color;
@@ -93,10 +93,10 @@ Card newCard
 
     // If successful, fill in the card properties, which include...
     // unique ID, suit, colour and value.
-    (*new_card).card_id =
-    total_values *total_suits *color +
-    total_values *suit +
-    value;
+    // (*new_card).card_id =
+    // total_values *total_suits *color +
+    // total_values *suit +
+    // value;
 
     (*new_card).card_color = color;
     (*new_card).card_suit = suit;

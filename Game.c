@@ -51,7 +51,7 @@ struct card_list
     // The next card
     struct card_list *next;
 
-}
+};
 
 
 // THis is the "struct" which forms the move history
@@ -260,7 +260,7 @@ int turn_list_free
 // Fill in the cards which now exist in the game, and keep track of
 // the number of each value, colour and suit which exists in it
 int fill_in_remaining_empty_variables
-(Card **cards_in_game,
+(struct card_tracker *cards_in_game,
 int **cards_initially,
 int deckSize, color colors[],
 suit suits[], value values[],
@@ -284,19 +284,19 @@ int cards_max_dupe)
      */
 
     cards_initially[0] =
-    malloc ((sizeof (int)) *1);
+    malloc ((sizeof (int)) * 1);
     assert_malloc (cards_initially[0]);
 
     cards_initially[1] =
-    malloc ((sizeof (int)) *total_colors);
+    malloc ((sizeof (int)) * total_colors);
     assert_malloc (cards_initially[1]);
 
     cards_initially[2] =
-    malloc ((sizeof (int)) *total_suits);
+    malloc ((sizeof (int)) * total_suits);
     assert_malloc (cards_initially[2]);
 
     cards_initially[3] =
-    malloc ((sizeof (int)) *total_values);
+    malloc ((sizeof (int)) * total_values);
     assert_malloc (cards_initially[3]);
 
     // First element contains the length of the initial deck
@@ -343,9 +343,9 @@ int cards_max_dupe)
         cards_initially[3][values[count]] += 1;
 
         card_id =
-        total_values *total_suits *color +
-        total_values *suit +
-        value;
+        total_values * total_suits * colors[count] +
+        total_values * suits[count] +
+        values[count];
 
         // Also make the card or increment the number of an existing card
         if ((cards_in_game[card_id]).card == NULL)
@@ -353,9 +353,9 @@ int cards_max_dupe)
 
             (cards_in_game[card_id]).card =
             newCard
-            (value[count],
-            color[count],
-            suit[count]);
+            (values[count],
+            colors[count],
+            suits[count]);
 
             (cards_in_game[card_id]).dupes = 1;
 
@@ -363,7 +363,7 @@ int cards_max_dupe)
 
         // Also need to make sure we are within duplicate-limits.
         else if
-        ((cards_in_game[card_id]).dupes < cards_max_dupe)
+        ((cards_in_game[card_id]).dupes <= cards_max_dupe)
         {
 
             (cards_in_game[card_id]).dupes += 1;
@@ -378,7 +378,7 @@ int cards_max_dupe)
             card_id);
 
             perror
-            ("establish_cards");
+            ("fill_in_remaining_empty_variables");
 
         }
     }
@@ -414,7 +414,7 @@ color colors[], suit suits[])
     // The "struct card_tracker" contains a pointer and an integer.
     struct card_tracker *cards_in_game =
     calloc
-    (total_colors *total_suits *total_values,
+    (total_colors * total_suits * total_values,
     sizeof (struct card_tracker));
 
     assert_calloc (cards_in_game);
@@ -422,30 +422,30 @@ color colors[], suit suits[])
     // values will be of all the card suits, then the card colours
     // and finally the card values
     int **cards_initially =
-    malloc ((sizeof (int *)) *4);
+    malloc ((sizeof (int *)) * 4);
     assert_malloc (cards_initially);
 
     cards_initially[0] =
-    malloc ((sizeof (int)) *1);
-    assert_malloc (cards_initially[0]);
+    malloc ((sizeof (int)) * 1);
+    assert_calloc (cards_initially[0]);
 
     cards_initially[1] =
-    malloc ((sizeof (int)) *total_colors);
-    assert_malloc (cards_initially[1]);
+    malloc ((sizeof (int)) * total_colors);
+    assert_calloc (cards_initially[1]);
 
     cards_initially[2] =
-    malloc ((sizeof (int)) *total_suits);
-    assert_malloc (cards_initially[2]);
+    malloc ((sizeof (int)) * total_suits);
+    assert_calloc (cards_initially[2]);
 
     cards_initially[3] =
-    malloc ((sizeof (int)) *total_values);
-    assert_malloc (cards_initially[3]);
+    malloc ((sizeof (int)) * total_values);
+    assert_calloc (cards_initially[3]);
 
     // Allocate memory for an array which keeps track of the cards
     // in each players' hands. Each element represents one player,
     // and contains an link-list of cards.
     struct card_list **player_hands =
-    malloc ((sizeof (struct card_list *)) *4);
+    malloc ((sizeof (struct card_list *)) * 4);
     assert_malloc (player_hands);
 
 
@@ -554,7 +554,7 @@ void destroyGame
     items = NUM_PLAYERS;
     while (0 <= (items -= 1))
     {
-        card_list_free ((*game).player_hands);
+        card_list_free (((*game).player_hands)[items]);
     }
     free ((*game).player_hands);
 
@@ -585,15 +585,22 @@ int numCards
 int numOfSuit
 (Game game, suit suit)
 {
-    return (((*game).cards_initially) [2] [suit]);
+
+    return ((((*game).cards_initially)[2])[suit]);
+
 }
+
+
 
 // Get the number of cards in the initial deck of a particular color.
 int numOfColor
 (Game game, color color)
 {
-    return (((game).cards_intially) [1] [color]);
+
+    return ((((*game).cards_initially)[1])[color]);
+
 }
+
 
 
 
@@ -601,8 +608,11 @@ int numOfColor
 int numOfValue
 (Game game, value value)
 {
-    return (((*game).cards_intially) [3] [value]);
+
+    return ((((*game).cards_initially)[3])[value]);
+
 }
+
 
 
 // Get the number of the player whose turn it is.
@@ -631,12 +641,18 @@ int currentTurn
 
 
 
+// !!!
 // Get the number of points for a given player.
 // Player should be between 0 and 3.
 //
 // This should _not_ be called by a player.
 int playerPoints
-(Game game, int player);
+(Game game, int player)
+{
+
+    return 0;
+
+}
 
 
 
@@ -719,7 +735,7 @@ playerMove pastMove
 (Game game, int turn, int move)
 {
 
-    playerMove the_move = -1;
+    playerMove the_move;
 
     if ((0 <= turn) && (turn <= (*game).turn))
     {
@@ -740,16 +756,28 @@ playerMove pastMove
         // And then look for move
         if (current_move)
         {
+
             while
             ((0 <= (move -= 1))
             && (current_move = (*current_move).next));
+
         }
 
         // If we find the move, capture it
         if (current_move)
         {
+
             the_move = (*current_move).move;
+
         }
+    }
+    else
+    {
+
+        the_move.action = 0;
+        the_move.nextColor = 0;
+        the_move.card = NULL;
+
     }
 
     return the_move;
@@ -758,30 +786,67 @@ playerMove pastMove
 
 
 
+// !!!
 // Get the number of cards in a given player's hand.
 int playerCardCount
-(Game game, int player);
+(Game game, int player)
+{
+
+    return 0;
+
+}
 
 
 
+// !!!
 // Get the number of cards in the current player's hand.
 int handCardCount
-(Game game);
+(Game game)
+{
+
+    return 0;
+
+}
 
 
 
+// !!!
 // View a card from the current player's own hand.
 //
 // The player should not need to free () this card,
 // so you should not allocate or clone an existing card
 // but give a reference to an existing card.
 Card handCard
-(Game game, int card);
+(Game game, int card)
+{
+
+    Card this;
+
+    return this;
+
+}
 
 
 
 
 
+// !!!
+// Get the card that is on the top of the discard pile.
+Card topDiscard
+(Game game)
+{
+
+    Card card;
+
+    return card;
+
+}
+
+
+
+
+
+// !!!
 // Check if a given move is valid.
 //
 // If the last player played a 2 (DRAW_TWO),
@@ -807,10 +872,16 @@ Card handCard
 // unless a draw-two was played, in which case the player may not
 // play a card, and instead must draw the appropriate number of cards.
 int isValidMove
-(Game game, playerMove move);
+(Game game, playerMove move)
+{
+
+    return 0;
+
+}
 
 
 
+// !!!
 // Play the given action for the current player
 //
 // If the player makes the END_TURN move, their turn ends,
@@ -818,17 +889,28 @@ int isValidMove
 //
 // This should _not_ be called by the player AI.
 void playMove
-(Game game, playerMove move);
+(Game game, playerMove move)
+{
+
+    move = move;
+
+}
 
 
 
+// !!!
 // Check the game winner.
 //
 // Returns NOT_FINISHED if the game has not yet finished,
 // 0-3, representing which player has won the game, or
 // NO_WINNER if the game has ended but there was no winner.
 int gameWinner
-(Game game);
+(Game game)
+{
+
+    return 0;
+
+}
 
 
 
