@@ -1,7 +1,7 @@
 
 
 
-/*  lloctan  */
+/* lloctan  */
 
 
 
@@ -24,14 +24,34 @@
 
 
 
+
+
 /* Miscellane  */
+
+
+
+// For verbose or silence, toggle here
+#define verbose 1
+
+#if verbose
+# define conditional_print printf
+#else
+# define conditional_print ignore
+int ignore
+(char *format, ...)
+{
+    return 0;
+}
+#endif
+
+
 
 // Print current values and apply assert to inputs
 int assert_print
 (int one, int two)
 {
 
-    printf
+    conditional_print
     ("%03d %03d \n",
     one, two);
 
@@ -141,7 +161,7 @@ int card_enum_color
 (void)
 {
 
-    printf
+    conditional_print
     ("%s \n\n",
     "card_enum_color");
 
@@ -152,7 +172,7 @@ int card_enum_color
         (one, (int) color_all[one]);
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -162,7 +182,7 @@ int card_enum_color
 int card_enum_suit
 (void)
 {
-    printf
+    conditional_print
     ("%s \n\n",
     "card_enum_suit");
 
@@ -173,7 +193,7 @@ int card_enum_suit
         (one, (int) suit_all[one]);
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -184,7 +204,7 @@ int card_enum_value
 (void)
 {
 
-    printf
+    conditional_print
     ("%s \n\n",
     "card_enum_value");
 
@@ -195,7 +215,7 @@ int card_enum_value
         (one, (int) value_all[one]);
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -204,6 +224,9 @@ int card_enum_value
 
 
 
+// Check that we can create new cards, obtain properties and
+// free them afterwards. Repeat them RANDOM_ITERATIONS_CARDS
+// times
 int card_all
 (void)
 {
@@ -214,7 +237,7 @@ int card_all
     int value;
     Card new_card;
 
-    printf
+    conditional_print
     ("%s \n\n",
     "card_new_and_destroy_card");
 
@@ -233,12 +256,12 @@ int card_all
         color_all[color],
         suit_all[suit]);
 
-        printf
+        conditional_print
         ("%s %d \n",
         "Before \"free\", NEW_CARD is in location ...",
         (int) new_card);
 
-        printf
+        conditional_print
         ("%s \n%s %s %s \n"
         "%03d %03d %03d \n%03d %03d %03d \n",
         "Input and output.",
@@ -257,17 +280,17 @@ int card_all
         free
         (new_card);
 
-        printf
+        conditional_print
         ("%s %d \n",
         "After \"free\", this location is now free ...",
         (int) new_card);
 
-        printf
+        conditional_print
         ("\n\n");
 
     }
 
-    printf
+    conditional_print
     ("\n");
 
     return 0;
@@ -276,6 +299,11 @@ int card_all
 
 
 
+/* This is to test everything in "Card.c". This will check
+ * that the enums are consistent and correct. This will
+ * also create new cards, retrieve information about their
+ * properties, like colour and suit, and free the cards.
+ */
 int card_main
 (void)
 {
@@ -301,7 +329,7 @@ int game_enum_direction
 (int one)
 {
 
-    printf
+    conditional_print
     ("%s \n\n",
     "game_enum_direction");
 
@@ -311,7 +339,7 @@ int game_enum_direction
         (one, (int) direction_all[one]);
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -322,7 +350,7 @@ int game_enum_action
 (int one)
 {
 
-    printf
+    conditional_print
     ("%s \n\n",
     "game_enum_action");
 
@@ -332,7 +360,7 @@ int game_enum_action
         (one, (int) action_all[one]);
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -342,7 +370,8 @@ int game_enum_action
 
 
 // Before we make a new game, try out the functions which relate
-// to making new cards for the deck
+// to making new cards for the deck. This is for the case of
+// one distinct card ("RED" "HEARTS" "ONE")
 int game_make_deck_basic
 (color deck_colors[deck_size],
 suit deck_suits[deck_size],
@@ -368,7 +397,7 @@ int deck_value_tracker[value_max])
     while (0 <= (count_cards -= 1))
     {
 
-        printf
+        conditional_print
         ("%03d %03d %03d     %s %s %s \n",
         color, suit, value,
         color_names[color],
@@ -377,13 +406,16 @@ int deck_value_tracker[value_max])
 
     }
 
-    printf
+    conditional_print
     ("\n");
 
     return 0;
 
 }
 
+// Before we make a new game, try out the functions which relate
+// to making new cards for the deck. This is for the case of
+// typical cards, and without effects
 int game_make_deck_numbers_only
 (int game_number,
 color deck_colors[deck_size],
@@ -406,7 +438,75 @@ int deck_value_tracker[value_max])
     int count_cards = deck_size;
 
     // But! For our purposes of testing, we need a few important
+    // details to keep track of, like the number of cards of a
+    // particular colour
+    while (0 <= (count_cards -= 1))
+    {
 
+        // Assigning random values for these three properties
+        // of each card in the deck
+        color = (int) (random () % color_max);
+        suit = (int) (random () % suit_max);
+
+        // VALUE needs to be a number. So we exclude special
+        // effects, like DRAW_TWO and ADVANCE
+        while
+        ((value = (int) (random () % value_max))
+        && ((value == 2) || (9 < value)));
+
+        // Increment the counter which tracks these properties
+        deck_color_tracker[color] += 1;
+        deck_suit_tracker[suit] += 1;
+        deck_value_tracker[value] += 1;
+
+        // Apply to the card in the deck
+        deck_colors[count_cards] = color_all[color];
+        deck_suits[count_cards] = suit_all[suit];
+        deck_values[count_cards] = value_all[value];
+
+        conditional_print
+        ("%03d %03d %03d     %s %s %s \n",
+        color, suit, value,
+        color_names[color],
+        suit_names[suit],
+        value_names[value]);
+
+    }
+
+    conditional_print
+    ("\n");
+
+    return 0;
+
+}
+
+// Before we make a new game, try out the functions which relate
+// to making new cards for the deck. This is for the case of
+// all kinds of cards, with or without effects
+int game_make_deck_with_effects
+(int game_number,
+color deck_colors[deck_size],
+suit deck_suits[deck_size],
+value deck_values[deck_size],
+int deck_color_tracker[color_max],
+int deck_suit_tracker[suit_max],
+int deck_value_tracker[value_max])
+{
+
+    // Variables for making random cards
+    int color;
+    int suit;
+    int value;
+
+    // For error-checking, make it predictable
+    srandom (random_seed + game_number);
+
+    // Make a proper deck
+    int count_cards = deck_size;
+
+    // But! For our purposes of testing, we need a few important
+    // details to keep track of, like the number of cards of a
+    // particular colour
     while (0 <= (count_cards -= 1))
     {
 
@@ -426,7 +526,7 @@ int deck_value_tracker[value_max])
         deck_suits[count_cards] = suit_all[suit];
         deck_values[count_cards] = value_all[value];
 
-        printf
+        conditional_print
         ("%03d %03d %03d     %s %s %s \n",
         color, suit, value,
         color_names[color],
@@ -435,12 +535,13 @@ int deck_value_tracker[value_max])
 
     }
 
-    printf
+    conditional_print
     ("\n");
 
     return 0;
 
 }
+
 
 
 // Once we have a new game, check that the functions relating
@@ -457,15 +558,16 @@ int deck_value_tracker[value_max])
 
     // Acutally not sure about this!! Does "initial deck" mean
     // before or after dealing cards to the players?
-    printf
-    ("%s %03d %03d \n",
+    conditional_print
+    ("%s \n%s %03d %03d \n",
+    "game_check_deck",
     "Number of cards in the deck.",
     deck_size, numCards (new_game));
 
     assert
     (deck_size == numCards (new_game));
 
-    printf
+    conditional_print
     ("%s \n",
     "Number of cards in the deck which are ...");
 
@@ -473,7 +575,7 @@ int deck_value_tracker[value_max])
     while (0 <= (count -= 1))
     {
 
-        printf
+        conditional_print
         ("%s %s. %03d %03d \n",
         "  ... ", (color_names[count]),
         deck_color_tracker[count],
@@ -489,11 +591,11 @@ int deck_value_tracker[value_max])
     while (0 <= (count -= 1))
     {
 
-        printf
+        conditional_print
         ("%s %s. %03d %03d \n",
         "  ... ", (suit_names[count]),
         deck_suit_tracker[count],
-        numOfSuit (new_game, suit_all[count] ));
+        numOfSuit (new_game, suit_all[count]));
 
         assert
         (deck_suit_tracker[count] ==
@@ -505,7 +607,7 @@ int deck_value_tracker[value_max])
     while (0 <= (count -= 1))
     {
 
-        printf
+        conditional_print
         ("%s %s. %03d %03d \n",
         "  ... ", (value_names[count]),
         deck_value_tracker[count],
@@ -517,7 +619,7 @@ int deck_value_tracker[value_max])
 
     }
 
-    printf
+    conditional_print
     ("\n");
 
     return 0;
@@ -548,7 +650,7 @@ value deck_values[deck_size])
     int in_hand_index;
     Card in_hand_card;
 
-    printf
+    conditional_print
     ("%s \n%s \n%s %03d %s \n\n",
     "game_check_hands_and_discards",
     "Check the cards in hands match those in initial deck.",
@@ -558,10 +660,12 @@ value deck_values[deck_size])
     while (0 <= (player -= 1))
     {
 
-        printf
+        conditional_print
         ("%s %03d %s %03d %s \n%s \n",
-        "Player", player, "has ", handCardCount (new_game), "cards.",
-        "Below are pairs of cards from initial deck and from the hand.");
+        "Player", player, "has ",
+        handCardCount (new_game), "cards.",
+        "Below are pairs of cards from "
+        "initial deck and from the hand.");
 
         // In the beginning, make sure each player has seven cards
         assert
@@ -602,7 +706,7 @@ value deck_values[deck_size])
             (*in_hand_card).card_value;
 
             // Compare the properties
-            printf
+            conditional_print
             ("%s %03d %s %s %s %s %s %s %s %s %s \n",
             "  ... ", in_hand_index, ". (",
             (color_names[color_from_ini_deck]),
@@ -620,7 +724,7 @@ value deck_values[deck_size])
 
         }
 
-        printf
+        conditional_print
         ("\n");
 
     }
@@ -638,7 +742,7 @@ value deck_values[deck_size])
 
     Card card_in_discard = topDiscard (new_game);
 
-    printf
+    conditional_print
     ("%s \n%s %s %s %s %s %s %s %s %s \n",
     "The first card in the discard pile.",
     "  ... (",
@@ -663,19 +767,54 @@ value deck_values[deck_size])
     (deck_values[in_hand_initially * NUM_PLAYERS] ==
     (*card_in_discard).card_value);
 
-    printf
+    conditional_print
     ("\n");
 
     return 0;
 
 }
 
+// This function advances the current player
+int next_player
+(direction direction, int current_player)
+{
+
+    if (direction == ANTICLOCKWISE)
+    {
+        if (current_player == 0)
+        {
+            current_player = NUM_PLAYERS - 1;
+        }
+        else
+        {
+            current_player -= 1;
+        }
+    }
+    else
+    {
+        if (current_player == NUM_PLAYERS - 1)
+        {
+            current_player = 0;
+        }
+        else
+        {
+            current_player += 1;
+        }
+    }
+
+    return current_player;
+
+}
+
+// This makes sure that during the game, we have the correct turn and
+// player. Requires feeding the correct TURN and PLAYER into inputs
 int assert_turn_and_player
 (Game new_game, int turn, int player)
 {
 
-    // Print the current turn and make sure "currentTurn" returns correctly
-    printf
+    // Print the current turn and make sure "currentTurn" returns
+    // correctly
+    conditional_print
     ("%s %03d %03d \n",
     "Current turn.",
     turn, currentTurn (new_game));
@@ -684,7 +823,7 @@ int assert_turn_and_player
     (turn == currentTurn (new_game));
 
     // Similarly for current player
-    printf
+    conditional_print
     ("%s %03d %03d \n",
     "Current player.",
     player, currentPlayer (new_game));
@@ -696,6 +835,51 @@ int assert_turn_and_player
 
 }
 
+// This function makes sure that during the game, the n-th card in a
+// player's hand is indeed the one from "handCard". Requires feeding
+// inputs. Also retrieve the card from "handCard"
+Card assert_and_retrieve_card
+(Game new_game, int player, int card_num)
+{
+
+    Card actual_card =
+    (* ((*new_game).player_hands[player])).card;
+
+    Card function_card =
+    handCard (new_game, card_num);
+
+    conditional_print
+    ("%s %03d%s %03d %s \n%s %s %s %s %s \n",
+    "In the hand of player", player, ", card number", card_num,
+    "is ...", "  ... (",
+    color_names[(*actual_card).card_color],
+    suit_names[(*actual_card).card_suit],
+    value_names[(*actual_card).card_value],
+    ") (");
+
+    assert
+    (actual_card == function_card);
+
+    return function_card;
+
+}
+
+// This function prints all the valid cards to play in
+// PLAYER's hand. It evaluates the best possible move and
+// returns the index to that card in the hand
+int best_value_move
+(Game new_game, int player)
+{
+
+    return 0;
+
+}
+
+
+
+
+// This function makes combines three tasks. It announces the move
+// to play, it checks that the move is valid, and then plays it for us
 int game_announce_check_and_make_move
 (Game new_game, playerMove move)
 {
@@ -703,7 +887,7 @@ int game_announce_check_and_make_move
     if (move.action == END_TURN)
     {
 
-        printf
+        conditional_print
         ("%s \n\n", "END_TURN");
 
     }
@@ -712,7 +896,7 @@ int game_announce_check_and_make_move
 
         Card card = move.card;
 
-        printf
+        conditional_print
         ("%s %s %s %s %s %s \n",
         action_names[move.action],
         "(",
@@ -727,7 +911,7 @@ int game_announce_check_and_make_move
 
         Card card = move.card;
 
-        printf
+        conditional_print
         ("%s %s %s \n",
         action_names[move.action],
         "DECLARE",
@@ -737,7 +921,7 @@ int game_announce_check_and_make_move
     else
     {
 
-        printf
+        conditional_print
         ("%s \n",
         action_names[move.action]);
 
@@ -752,42 +936,112 @@ int game_announce_check_and_make_move
 
 }
 
+int assert_card_count_hands
+(Game new_game, int *count_array)
+{
+
+    conditional_print
+    ("%s \n%s \n", "assert_card_count_hands",
+    "Below are player number, actual number of cards left \n"
+    "and the number from \"playerCardCount\".");
+
+    // First, get the array which contains players' hands
+    struct card_list **player_hands_array =
+    (*new_game).player_hands;
+
+    struct card_list *player_hand;
+    int from_function;
+
+    // For each player, go through their hand and count the
+    // number of cards they have
+    int player = NUM_PLAYERS;
+    while (0 <= (player -= 1))
+    {
+
+        player_hand = player_hands_array[player];
+
+        // So, stop when PLAYER_HAND is empty
+        while
+        (player_hand
+        && (count_array[player] += 1)
+        && (player_hand = (*player_hand).next));
+
+        from_function =
+        playerCardCount (new_game, player);
+
+        conditional_print
+        ("  ... %03d %s %03d %03d \n",
+        player, "has",
+        count_array[player],
+        from_function);
+
+        assert
+        (count_array[player] == from_function);
+
+    }
+
+    conditional_print
+    ("\n");
+
+    return 0;
+
+}
+
+// This function ensures that we know the winner correctly
+int assert_winner
+(Game new_game, int winner)
+{
+
+    conditional_print
+    ("%s %03d %s \n",
+    "Player", gameWinner (new_game), "wins!");
+
+    assert
+    (gameWinner (new_game) == winner);
+
+    conditional_print
+    ("\n");
+
+    return 0;
+
+}
 
 
 
 
+
+// This simulates a game where all the cards are the same
+// ("RED" "HEARTS" ONE"). Returns the winner of the game
 int game_play_basic
 (Game new_game)
 {
 
     playerMove move;
     int cards_in_hand;
-    int player = 0;
+    int player = -1;
     int turn = -1;
 
     // Only when the most recent player has zero cards left in
     // their hand does the game end.
-
     while
     ((0 < (cards_in_hand = handCardCount (new_game)))
     && (0 <= (turn += 1)))
     {
 
-        // Because all cards are ("RED" "HEARTS" "ONE"), we
-        // know that the direction is always "CLOCKWISE"
-        player = (turn % NUM_PLAYERS);
+        // Because all cards are ("RED" "HEARTS" "ONE"), we know
+        // that the direction is always "CLOCKWISE"
+        player = next_player (CLOCKWISE, player);
 
         // On turn 0, player 0, the game begins
-        printf
+        conditional_print
         ("%s %03d %s %03d %s \n",
         "Turn", turn, "and player", player, ".");
 
         assert_turn_and_player
         (new_game, turn, player);
 
-        // Our move will always be the first card
-        // ("RED" "HEARTS" "ONE").
-        // But if no cards left, end turn
+        // Our move will always be ("RED" "HEARTS" "ONE").
+        // So, choose the first card. But if no cards left, end turn
         if (0 < cards_in_hand)
         {
 
@@ -818,12 +1072,14 @@ int game_play_basic
 
             // Always the first card!
             move.action = PLAY_CARD;
-            move.card = handCard (new_game, 0);
+            move.card =
+            assert_and_retrieve_card
+            (new_game, player, 0);
             game_announce_check_and_make_move
             (new_game, move);
 
             // History should now contain this move. We should
-            // verify it.Look at the first move. Does it match
+            // verify it. Look at the first move. Does it match
             // MOVE?
             playerMove in_pastMove =
             pastMove (new_game, turn, 0);
@@ -839,21 +1095,24 @@ int game_play_basic
 
     }
 
-    return 0;
+    return player;
 
 }
 
+// This does everything to create a game and simulate it
+// All the cards are ("RED" "HEARTS" "ONE")
 int game_all_basic
 (void)
 {
 
     // Variables for making random games
-    color deck_colors[deck_size];
-    suit deck_suits[deck_size];
-    value deck_values[deck_size];
+    // Note, initialising to zero for ("RED" "HEARTS" "ONE")
+    color deck_colors[deck_size] = { 0 };
+    suit deck_suits[deck_size] = { 0 };
+    value deck_values[deck_size] = { 0 };
     Game new_game;
 
-    // Variables to keep track the frequency of colours, suits
+    // Variables to track the frequency of colours, suits
     // and values in the deck
     int deck_color_tracker[color_max] = { 0 };
     int deck_suit_tracker[suit_max] = { 0 };
@@ -862,13 +1121,15 @@ int game_all_basic
     // Miscellane
     int turn;
     int player;
+    int winner;
+    int cards_in_hands[NUM_PLAYERS] = { 0 };
 
-    printf
+    conditional_print
     ("%s \n\n",
     "game_new_and_destroy_game");
 
     // Make one game, all cards are ("RED" "HEARTS" "ONE")
-    printf
+    conditional_print
     ("%s %03d \n%s \n", "New game.",
     0, "Deck of cards.");
 
@@ -883,7 +1144,7 @@ int game_all_basic
     newGame
     (deck_size, deck_values, deck_colors, deck_suits);
 
-    printf
+    conditional_print
     ("%s %d \n",
     "Before \"free\", NEW_GAME is in location ...",
     (int) new_game);
@@ -905,46 +1166,26 @@ int game_all_basic
     deck_colors, deck_suits, deck_values);
 
     // Now, we play the game
-    game_play_basic
-    (new_game);
+    winner = game_play_basic (new_game);
 
     // How many cards are in other players' hand
-    printf
-    ("%s \n",
-    "Cards in players hands.");
-
-    player = NUM_PLAYERS;
-    while (0 <= (player -= 1))
-    {
-
-        printf
-        ("%s %03d %s %03d %s \n",
-        "  ...", player, "has",
-        playerCardCount (new_game, player), ".");
-
-    }
-
-    printf
-    ("\n");
+    assert_card_count_hands
+    (new_game, cards_in_hands);
 
     // Who wins? The one who started, of course, player 0
-    printf
-    ("%s %03d %s \n",
-    "Player", gameWinner (new_game), "wins!");
-
-    assert
-    (gameWinner (new_game) == 0);
+    assert_winner
+    (new_game, winner);
 
     // Finish up
     destroyGame
     (new_game);
 
-    printf
+    conditional_print
     ("%s %d \n",
     "After \"free\", NEW_GAME is in location ...",
     (int) new_game);
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -955,6 +1196,92 @@ int game_all_basic
 
 
 
+int game_play_all_numbers
+(Game new_game)
+{
+
+    playerMove move;
+    int cards_in_hand;
+    int player = -1;
+    int turn = -1;
+
+    // Only when the most recent player has zero cards left in
+    // their hand does the game end.
+    while
+    ((0 < (cards_in_hand = handCardCount (new_game)))
+    && (0 <= (turn += 1)))
+    {
+
+        // Because all cards are without effects, we know
+        // that the direction is always "CLOCKWISE"
+        player = next_player (CLOCKWISE, player);
+
+        // On turn 0, player 0, the game begins
+        conditional_print
+        ("%s %03d %s %03d %s \n",
+        "Turn", turn, "and player", player, ".");
+
+        assert_turn_and_player
+        (new_game, turn, player);
+
+        // Our move will always be ("RED" "HEARTS" "ONE").
+        // So, choose the first card. But if no cards left, end turn
+        if (0 < cards_in_hand)
+        {
+
+            if (cards_in_hand == 3)
+            {
+
+                move.action = SAY_TRIO;
+                game_announce_check_and_make_move
+                (new_game, move);
+
+            }
+            else if (cards_in_hand == 2)
+            {
+
+                move.action = SAY_DUO;
+                game_announce_check_and_make_move
+                (new_game, move);
+
+            }
+            else if (cards_in_hand == 1)
+            {
+
+                move.action = SAY_UNO;
+                game_announce_check_and_make_move
+                (new_game, move);
+
+            }
+
+            // Always the first card!
+            move.action = PLAY_CARD;
+            move.card =
+            assert_and_retrieve_card
+            (new_game, player, 0);
+            game_announce_check_and_make_move
+            (new_game, move);
+
+            // History should now contain this move. We should
+            // verify it. Look at the first move. Does it match
+            // MOVE?
+            playerMove in_pastMove =
+            pastMove (new_game, turn, 0);
+
+            assert
+            ((& move) == (& in_pastMove));
+
+        }
+
+        move.action = END_TURN;
+        game_announce_check_and_make_move
+        (new_game, move);
+
+    }
+
+    return player;
+
+}
 
 int game_all_numbers_only
 (void)
@@ -975,8 +1302,10 @@ int game_all_numbers_only
     // Miscellane
     int turn;
     int player;
+    int winner;
+    int cards_in_hands[NUM_PLAYERS] = { 0 };
 
-    printf
+    conditional_print
     ("%s \n\n",
     "game_new_and_destroy_game");
 
@@ -984,7 +1313,7 @@ int game_all_numbers_only
     while (0 <= (count_games -= 1))
     {
 
-        printf
+        conditional_print
         ("%s %03d \n%s \n", "New game.",
         count_games, "Deck of cards.");
 
@@ -1000,36 +1329,49 @@ int game_all_numbers_only
         newGame
         (deck_size, deck_values, deck_colors, deck_suits);
 
-        printf
+        conditional_print
         ("%s %d \n",
         "Before \"free\", NEW_GAME is in location ...",
         (int) new_game);
 
         // For checking deck-values in a new game
         // With "newGame", did we initialise properly?
+        game_check_deck
+        (new_game,
+        deck_colors, deck_suits, deck_values,
+        deck_color_tracker,
+        deck_suit_tracker,
+        deck_value_tracker);
 
+        // When we call "newGame", from the deck, each player receives
+        // seven cards and the next card on the deck becomes the first in
+        // the discard pile. Confirm this
+        game_check_hands_and_discards
+        (new_game,
+        deck_colors, deck_suits, deck_values);
 
+        // Now, we play the game
+        winner = game_play_all_numbers (new_game);
 
+        // How many cards are in other players' hand
+        assert_card_count_hands
+        (new_game, cards_in_hands);
 
-        // Number of the player whose turn it is. Typically, this
-        // would be (turn % NUM_PLAYERS), but because we also
-        // need to consider "CLOCKWISE" and "ANTI-CLOCKWISE", we
-        // need the game history to know
-        turn = 0;
-
-
+        // Who wins? The one who started, of course, player 0
+        assert_winner
+        (new_game, winner);
 
         destroyGame
         (new_game);
 
-        printf
+        conditional_print
         ("%s %d \n",
         "After \"free\", NEW_GAME is in location ...",
         (int) new_game);
 
     }
 
-    printf
+    conditional_print
     ("\n\n\n");
 
     return 0;
@@ -1043,74 +1385,74 @@ int game_all_numbers_only
 /* Patrick */
 
 
-
-#define MAX_DECK 100
-#define MIN_DECK 30
-
-void num
-(void);
-
-void rngDeck
-(Game game);
-
-int patrick_main
-(int argc, char *argv[])
-{
-
-    printf ("This is a test for the Game ADT\n");
-
-    num ();
-
-    printf ("All tests passed\n");
-
-    return EXIT_SUCCESS;
-
-}
-
-void num
-(void)
-{
-
-    value values[50];
-    suit suits[50];
-    color colors[50];
-
-    int i = 0;
-
-    while (i < 50) {
-        values[i] = rand () % 16;
-        suits[i] = HEARTS;
-        colors[i] = RED;
-        i++;
-    }
-
-    Game game = newgame (50, values, colors, suits);
-
-    assert ((game -> cards_in_deck) == 50);
-
-}
-
-
-// this function generates a random deck to be used
-void rngDeck
-()
-{
-
-    // generating a random amount of cards
-    int i = 0;
-    int count = (rand () % (MAX_DECK + 1 - MIN_DECK) + MIN_DECK);
-
-    while (i < count) {
-
-        values[i] = (rand () % (15));
-        // Hearts for now but will change once I implement a function to convert RNG numbers into string
-        suits[i] = HEARTS;
-        colors[i] = BLUE;
-        i++;
-
-    }
-}
-
+/* 
+ * #define MAX_DECK 100
+ * #define MIN_DECK 30
+ *
+ * void num
+ * (void);
+ *
+ * void rngDeck
+ * (Game game);
+ *
+ * int patrick_main
+ * (int argc, char *argv[])
+ * {
+ *
+ *   conditional_print ("This is a test for the Game ADT\n");
+ *
+ *   num ();
+ *
+ *   conditional_print ("All tests passed\n");
+ *
+ *   return EXIT_SUCCESS;
+ *
+ * }
+ *
+ * void num
+ * (void)
+ * {
+ *
+ *   value values[50];
+ *   suit suits[50];
+ *   color colors[50];
+ *
+ *   int i = 0;
+ *
+ *   while (i < 50) {
+ *     values[i] = rand () % 16;
+ *     suits[i] = HEARTS;
+ *     colors[i] = RED;
+ *     i++;
+ *   }
+ *
+ *   Game game = newgame (50, values, colors, suits);
+ *
+ *   assert ((game -> cards_in_deck) == 50);
+ *
+ * }
+ *
+ *
+ * // this function generates a random deck to be used
+ * void rngDeck
+ * (void)
+ * {
+ *
+ *   // generating a random amount of cards
+ *   int i = 0;
+ *   int count = (rand () % (MAX_DECK + 1 - MIN_DECK) + MIN_DECK);
+ *
+ *   while (i < count) {
+ *
+ *     values[i] = (rand () % (15));
+ *     // Hearts for now but will change once I implement a function to convert RNG numbers into string
+ *     suits[i] = HEARTS;
+ *     colors[i] = BLUE;
+ *     i++;
+ *
+ *   }
+ * }
+ */
 
 
 
@@ -1126,6 +1468,10 @@ int main
 
     card_main ();
 
+    game_all_basic ();
+
+    game_all_numbers_only ();
+
     printf
     ("%s \n\n\n",
     "Success!! =) ");
@@ -1133,5 +1479,7 @@ int main
     return 0;
 
 }
+
+
 
 
