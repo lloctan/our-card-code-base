@@ -776,8 +776,3 @@ struct card_list *card_list_remove (struct card_list *list, int nth) {
  *
  * }
  */
-
-
-
-
-
