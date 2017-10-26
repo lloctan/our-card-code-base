@@ -1,55 +1,38 @@
-
-
-
+//Card.c File for Ass2
 /* Initialise */
-
 // '("perror" "printf")
-#include <stdio.h>
-
 // '("malloc" "free")
-#include <stdlib.h>
-
 // Various prototypes
+
+#include <stdio.h>
+#include <stdlib.h>
 #include "Card.h"
 
-// Handle "malloc" errors
-int assert_malloc (void *this_pointer)
-{
 
-    // If unable to correctly allocate memory, raise an error
+// Handles "malloc" errors
+// If unable to correctly allocate memory, raise an error
+// Else, we return successfully
+
+int check_malloc (void *this_pointer) {
     if (this_pointer == NULL) {
-
-        printf
-        ("%s",
-        "Unable to allocate memory to the heap. \n");
-
-        perror
-        ("malloc");
-
+        printf ("%s", "Unable to allocate memory to the heap. \n");
+        perror ("malloc");
     };
-
-    // Else, we return successfully
     return 0;
-
 }
+
 
 // I couldn't find a way to add up the number of elements in the "enums",
 // so I'll hard-code the constants here. You can find the "enums" in
 // "card.h"
+
 const int total_colors = 5;
 const int total_suits = 5;
 const int total_values = 16;
 
 
-
-
-
 /* Mechanics */
-
-struct _card
-{
-
-    /* Makes it easier to tell how many of the same card exists in the
+ /* Makes it easier to tell how many of the same card exists in the
      * game. So we can have at most maybe two identical cards.
      *
      * card_id =
@@ -57,103 +40,64 @@ struct _card
      *   total_values *card_suit +
      *   card_value
      */
-    // int card_id;
-
     // { RED BLUE GREEN ... }
-    color card_color;
-
     // { HEARTS DIAMONDS CLUBS ... }
-    suit card_suit;
-
     // { ZERO ONE TWO DRAW_TWO ... }
+
+struct _card {
+    color card_color;
+    suit card_suit;
     value card_value;
-
 };
-
 
 
 // Create a new card.
 // These values can only be set at creation time.
 // The number should be between 0x0 and 0xF.
-Card newCard
-(value value, color color, suit suit)
-{
-
     // Before anything, check that the "number" is within[0 15]
-    assert
-    ((0 <= value) && (value < 16));
-
     // Create a pointer to a "struct _card" and make room for the card
     // in the heap.
-    Card new_card =
-    malloc (sizeof (struct _card));
-
     // Make sure we allocate memory properly.
-    assert_malloc (new_card);
-
     // If successful, fill in the card properties, which include...
     // unique ID, suit, colour and value.
     // (*new_card).card_id =
     // total_values *total_suits *color +
     // total_values *suit +
     // value;
-
+    // Now return it
+Card newCard (value value, color color, suit suit) {
+    Card new_card = malloc (sizeof (struct _card));
+    check_malloc (new_card);
     (*new_card).card_color = color;
     (*new_card).card_suit = suit;
     (*new_card).card_value = value;
-
-    // Now return it
     return new_card;
-
 }
-
 
 
 // Destroy an existing card.
-void destroyCard
-(Card card)
-{
-
-    // CARD is a pointer to the heap, so we need to free the memory.
+// CARD is a pointer to the heap, so we need to free the memory.
+void destroyCard (Card card) {
     free (card);
-
 }
-
 
 
 // Get the card's suit (HEARTS, DIAMONDS, etc).
-suit cardSuit
-(Card card)
-{
-
+suit cardSuit (Card card) {
     return (*card).card_suit;
-
 }
-
 
 
 // Get the card's number (0x0 through 0xF).
-value cardValue
-(Card card)
-{
-
+value cardValue (Card card) {
     return (*card).card_value;
-
 }
-
 
 
 // Get the card's color (RED, BLUE, etc).
-color cardColor
-(Card card)
-{
-
+color cardColor (Card card) {
     return (*card).card_color;
-
 }
-
-
-
 
 
 /* 
