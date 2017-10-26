@@ -13,7 +13,7 @@
     // If unable to correctly allocate memory, raise an error
     // Else, we return successfully
 
-int assert_calloc (void *this_pointer) {
+int check_calloc (void *this_pointer) {
     if (this_pointer == NULL) {
         printf("%s","Unable to allocate memory to the heap. \n");
         perror("calloc");
@@ -366,7 +366,7 @@ Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
     (total_colors * total_suits * total_values,
     sizeof (struct card_tracker));
 
-    assert_calloc (cards_in_game);
+    check_calloc (cards_in_game);
 
     int **cards_initially =
     malloc ((sizeof (int *)) * 4);
@@ -374,19 +374,19 @@ Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
 
     cards_initially[0] =
     malloc ((sizeof (int)) * 1);
-    assert_calloc (cards_initially[0]);
+    check_calloc (cards_initially[0]);
 
     cards_initially[1] =
     malloc ((sizeof (int)) * total_colors);
-    assert_calloc (cards_initially[1]);
+    check_calloc (cards_initially[1]);
 
     cards_initially[2] =
     malloc ((sizeof (int)) * total_suits);
-    assert_calloc (cards_initially[2]);
+    check_calloc (cards_initially[2]);
 
     cards_initially[3] =
     malloc ((sizeof (int)) * total_values);
-    assert_calloc (cards_initially[3]);
+    check_calloc (cards_initially[3]);
 
     struct card_list **player_hands =
     malloc ((sizeof (struct card_list *)) * 4);
