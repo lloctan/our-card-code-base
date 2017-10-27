@@ -32,8 +32,13 @@ int assert_calloc
 
 
 /* Miscellane */ 
-// This is temporary, so that "testGame.c" runs 
+
+// This is temporary, so that "testGame.c" runs
 #define cards_dupe 52
+
+// At the beginning of a game, this is the initial number
+// of cards to distribute to players
+#define initial_draw 7
 
 
 
@@ -301,11 +306,24 @@ Card card)
         (*front).card = card;
         list = front;
     }
-    else if (nth < 0)
+    else if (nth == -1)
+    {
+        struct card_list *current = list;
+        while
+        ((*current).next
+        && (current = (*current).next));
+
+        (*current).next =
+        malloc (sizeof (struct card_list));
+        (* ((*current).next)).card = card;
+    }
+    else if (nth < -1)
     {
         errx
         (EXIT_FAILURE,
-        "NTH needs to either be zero or positive. \n");
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("card_list_add");
     }
     else
     {
@@ -313,7 +331,7 @@ Card card)
         struct card_list *current = list;
         while
         ((0 <= (nth -= 1))
-        && (previous = list)
+        && (previous = current)
         && (current = (*current).next));
 
         // If we are still within the list, proceed
@@ -322,6 +340,8 @@ Card card)
             errx
             (EXIT_FAILURE,
             "NTH exceeds the list length. \n");
+            perror
+            ("card_list_add");
         }
         else
         {
@@ -337,6 +357,404 @@ Card card)
     }
 
     return list;
+
+}
+
+/* Retrieve a card from the list  */
+Card card_list_retrieve
+(struct card_list *list, int nth)
+{
+
+    if (list == NULL)
+    {
+        errx
+        (EXIT_FAILURE,
+        "Empty list. \n");
+        perror
+        ("card_list_retrieve");
+    }
+    else if (nth == -1)
+    {
+        while
+        ((*list).next
+        && (list = (*list).next));
+    }
+    else if (nth < -1)
+    {
+        errx
+        (EXIT_FAILURE,
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("card_list_retrieve");
+    }
+    else
+    {
+        // This loop ends either when we reach the end of the list
+        // or find the NTH node.
+        while
+        ((0 <= (nth -= 1))
+        && ((*list).next)
+        && (list = (*list).next));
+
+        // If end of list, signal error
+        if (list == NULL)
+        {
+            errx
+            (EXIT_FAILURE,
+            "Exceeds the length of the list. \n");
+            perror
+            ("card_list_retrieve");
+        }
+    }
+
+    return (*list).card;
+
+}
+
+
+
+/* Remove a move in a link-list. This function returns a pointer
+ * to the beginning of the "move_list". This pointer is important
+ * so keep it rather than discard it, like so:
+ *
+ * my_list = move_list_remove (my_list, nth);
+ */
+
+struct move_list *move_list_remove
+(struct move_list *list, int nth)
+{
+
+    // If this list is empty, skip this
+    if ((*list).next);
+
+    // If the first element, free it
+    else if (nth == 0)
+    {
+        struct move_list *next = (*list).next;
+        free (list);
+        list = next;
+    }
+
+    // For an element in the rest of the list, remove it and then bridge
+    // the gap
+    else
+    {
+        struct move_list *previous;
+        struct move_list *current = list;
+        while
+        ((previous = current)
+        && (0 <= (nth -= 1))
+        && (current = (*current).next));
+        (*previous).next = (*current).next;
+        free (current);
+    }
+
+    return list;
+
+}
+
+/* Add a move to the list  */
+struct move_list *move_list_add
+(struct move_list *list, int nth,
+playerMove move)
+{
+
+    if ((list == NULL) || (nth == 0))
+    {
+        struct move_list *front =
+        malloc (sizeof (struct move_list));
+        assert_malloc (front);
+
+        (*front).next = list;
+        (*front).move = move;
+        list = front;
+    }
+    else if (nth == -1)
+    {
+        struct move_list *current = list;
+        while
+        ((*current).next
+        && (current = (*current).next));
+
+        (*current).next =
+        malloc (sizeof (struct move_list));
+        (* ((*current).next)).move = move;
+    }
+    else if (nth < -1)
+    {
+        errx
+        (EXIT_FAILURE,
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("move_list_add");
+    }
+    else
+    {
+        struct move_list *previous;
+        struct move_list *current = list;
+        while
+        ((0 <= (nth -= 1))
+        && (previous = current)
+        && (current = (*current).next));
+
+        // If we are still within the list, proceed
+        if (0 < nth)
+        {
+            errx
+            (EXIT_FAILURE,
+            "NTH exceeds the list length. \n");
+            perror
+            ("move_list_add");
+        }
+        else
+        {
+            // Between two list parts, create a new cell and
+            // connect them in
+            (*previous).next =
+            malloc (sizeof (struct move_list));
+            assert_malloc ((*previous).next);
+
+            (* ((*previous).next)).next = current;
+            (* ((*previous).next)).move = move;
+        }
+    }
+
+    return list;
+
+}
+
+/* Retrieve a move from the list  */
+playerMove move_list_retrieve
+(struct move_list *list, int nth)
+{
+
+    if (list == NULL)
+    {
+        errx
+        (EXIT_FAILURE,
+        "Empty list. \n");
+        perror
+        ("move_list_retrieve");
+    }
+    else if (nth == -1)
+    {
+        while
+        ((*list).next
+        && (list = (*list).next));
+    }
+    else if (nth < -1)
+    {
+        errx
+        (EXIT_FAILURE,
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("move_list_retrieve");
+    }
+    else
+    {
+        // This loop ends either when we reach the end of the list
+        // or find the NTH node.
+        while
+        ((0 <= (nth -= 1))
+        && ((*list).next)
+        && (list = (*list).next));
+
+        // If end of list, signal error
+        if (list == NULL)
+        {
+            errx
+            (EXIT_FAILURE,
+            "Exceeds the length of the list. \n");
+            perror
+            ("move_list_retrieve");
+        }
+    }
+
+    return (*list).move;
+
+}
+
+int move_list_length
+(struct move_list *list)
+{
+
+    int len = 0;
+
+    // If empty list, move on
+    if (list == NULL);
+
+    // Else, run through the list and count
+    else
+    {
+        while
+        ((len += 1)
+        && (list = (*list).next));
+    }
+
+    return len;
+
+}
+
+
+
+/* Remove a turn in a link-list. This function returns a pointer
+ * to the beginning of the "turn_list". This pointer is important
+ * so keep it rather than discard it, like so:
+ *
+ * my_list = turn_list_remove (my_list, nth);
+ */
+
+struct turn_list *turn_list_remove
+(struct turn_list *list, int nth)
+{
+
+    // If this list is empty, skip this
+    if ((*list).next);
+
+    // If the first element, free it
+    else if (nth == 0)
+    {
+        struct turn_list *next = (*list).next;
+        free (list);
+        list = next;
+    }
+
+    // For an element in the rest of the list, remove it and then bridge
+    // the gap
+    else
+    {
+        struct turn_list *previous;
+        struct turn_list *current = list;
+        while
+        ((previous = current)
+        && (0 <= (nth -= 1))
+        && (current = (*current).next));
+        (*previous).next = (*current).next;
+        free (current);
+    }
+
+    return list;
+
+}
+
+/* Add a turn to the list  */
+struct turn_list *turn_list_add
+(struct turn_list *list, int nth,
+struct move_list *moves)
+{
+
+    if ((list == NULL) || (nth == 0))
+    {
+        struct turn_list *front =
+        malloc (sizeof (struct turn_list));
+        assert_malloc (front);
+
+        (*front).next = list;
+        (*front).moves = moves;
+        list = front;
+    }
+    else if (nth == -1)
+    {
+        struct turn_list *current = list;
+        while
+        ((*current).next
+        && (current = (*current).next));
+
+        (*current).next =
+        malloc (sizeof (struct turn_list));
+        (* ((*current).next)).moves = moves;
+    }
+    else if (nth < -1)
+    {
+        errx
+        (EXIT_FAILURE,
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("turn_list_add");
+    }
+    else
+    {
+        struct turn_list *previous;
+        struct turn_list *current = list;
+        while
+        ((0 <= (nth -= 1))
+        && (previous = current)
+        && (current = (*current).next));
+
+        // If we are still within the list, proceed
+        if (0 < nth)
+        {
+            errx
+            (EXIT_FAILURE,
+            "NTH exceeds the list length. \n");
+            perror
+            ("turn_list_add");
+        }
+        else
+        {
+            // Between two list parts, create a new cell and
+            // connect them in
+            (*previous).next =
+            malloc (sizeof (struct turn_list));
+            assert_malloc ((*previous).next);
+
+            (* ((*previous).next)).next = current;
+            (* ((*previous).next)).moves = moves;
+        }
+    }
+
+    return list;
+
+}
+
+/* Retrieve a turn from the list  */
+struct move_list *turn_list_retrieve
+(struct turn_list *list, int nth)
+{
+
+    if (list == NULL)
+    {
+        errx
+        (EXIT_FAILURE,
+        "Empty list. \n");
+        perror
+        ("turn_list_retrieve");
+    }
+    else if (nth == -1)
+    {
+        while
+        ((*list).next
+        && (list = (*list).next));
+    }
+    else if (nth < -1)
+    {
+        errx
+        (EXIT_FAILURE,
+        "NTH needs to either be negative one or more. \n");
+        perror
+        ("turn_list_retrieve");
+    }
+    else
+    {
+        // This loop ends either when we reach the end of the list
+        // or find the NTH node.
+        while
+        ((0 <= (nth -= 1))
+        && ((*list).next)
+        && (list = (*list).next));
+
+        // If end of list, signal error
+        if (list == NULL)
+        {
+            errx
+            (EXIT_FAILURE,
+            "Exceeds the length of the list. \n");
+            perror
+            ("turn_list_retrieve");
+        }
+    }
+
+    return (*list).moves;
 
 }
 
@@ -409,16 +827,16 @@ color colors[], suit suits[], value values[])
     struct card_tracker *cards_in_game =
     (*new_game).cards_in_game;
 
-    cards_initially[0] = malloc ((sizeof (int)) *1);
+    cards_initially[0] = malloc ((sizeof (int)) * 1);
     check_malloc (cards_initially[0]);
 
-    cards_initially[1] = malloc ((sizeof (int)) *total_colors);
+    cards_initially[1] = malloc ((sizeof (int)) * total_colors);
     check_malloc (cards_initially[1]);
 
-    cards_initially[2] = malloc ((sizeof (int)) *total_suits);
+    cards_initially[2] = malloc ((sizeof (int)) * total_suits);
     check_malloc (cards_initially[2]);
 
-    cards_initially[3] = malloc ((sizeof (int)) *total_values);
+    cards_initially[3] = malloc ((sizeof (int)) * total_values);
     check_malloc (cards_initially[3]);
 
     cards_initially[0][0] =
@@ -581,13 +999,22 @@ int game_distribute_cards
 
 // Create link-lists for the deck, discard pile and players' hands
 
-Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
-    Game new_game = malloc (sizeof (struct _game)); 
+Game newGame
+(int deckSize, value values[],
+color colors[], suit suits[])
+{
+
+    // Allocate memory in the heap for a new game
+    Game new_game =
+    malloc (sizeof (struct _game));
     assert_malloc (new_game);
 
+    // Allocate memory for an array which will keep track of the
+    // cards in the game. This array will only contain pointers.
+    // The "struct card_tracker" contains a pointer and an integer.
     struct card_tracker *cards_in_game =
     calloc
-    (total_colors *total_suits *total_values,
+    (total_colors * total_suits * total_values,
     sizeof (struct card_tracker));
 
     assert_calloc (cards_in_game);
@@ -595,30 +1022,30 @@ Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
     // values will be of all the card suits, then the card colours
     // and finally the card values
     int **cards_initially =
-    malloc ((sizeof (int *)) *4);
+    malloc ((sizeof (int *)) * 4);
     assert_malloc (cards_initially);
 
     cards_initially[0] =
-    malloc ((sizeof (int)) *1);
-    check_calloc (cards_initially[0]);
+    malloc ((sizeof (int)) * 1);
+    assert_calloc (cards_initially[0]);
 
     cards_initially[1] =
-    malloc ((sizeof (int)) *total_colors);
-    check_calloc (cards_initially[1]);
+    malloc ((sizeof (int)) * total_colors);
+    assert_calloc (cards_initially[1]);
 
     cards_initially[2] =
-    malloc ((sizeof (int)) *total_suits);
-    check_calloc (cards_initially[2]);
+    malloc ((sizeof (int)) * total_suits);
+    assert_calloc (cards_initially[2]);
 
     cards_initially[3] =
-    malloc ((sizeof (int)) *total_values);
-    check_calloc (cards_initially[3]);
+    malloc ((sizeof (int)) * total_values);
+    assert_calloc (cards_initially[3]);
 
     // Allocate memory for an array which keeps track of the cards
     // in each players' hands. Each element represents one player,
     // and contains an link-list of cards.
     struct card_list **player_hands =
-    malloc ((sizeof (struct card_list *)) *4);
+    malloc ((sizeof (struct card_list *)) * 4);
     assert_malloc (player_hands);
 
 
@@ -641,7 +1068,11 @@ Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
 
     // Number of cards in the deck
     (*new_game).cards_in_deck = deckSize;
+
+    // Maximum number of cards to have duplicates of
     (*new_game).cards_max_dupe = cards_dupe;
+
+    // Keep track of cards in each players' hands
     (*new_game).player_hands = player_hands;
 
     // Current turn
@@ -657,7 +1088,10 @@ Game newGame (int deckSize, value values[], color colors[], suit suits[]) {
     fill_in_remaining_empty_variables
     (new_game, colors, suits, values);
 
-    // Create link-lists for the deck, discard pile and players' hands
+    // Distribute cards and then place the top card in the deck
+    // onto the discard pile
+    game_distribute_cards
+    (new_game);
 
     return new_game;
 
@@ -867,16 +1301,19 @@ int numTurns (Game game) {
 // the current turn.
 
 // And then count the number of moves
-
 int turnMoves
 (Game game, int turn)
 {
+
     int moves = 0;
+
     if ((0 <= turn) && (turn <= (*game).turn))
     {
+
         struct turn_list *current_turn =
         (*game).turn_history;
 
+        turn = (*game).turn - turn;
         while
         ((0 <= (turn -= 1))
         && (current_turn = (*current_turn).next));
@@ -891,8 +1328,11 @@ int turnMoves
             && (current_move = (*current_move).next));
         }
     }
+
     return moves;
+
 }
+
 
 
 
@@ -1059,7 +1499,6 @@ int isValidMove
 
 
 
-// !!!
 // Play the given action for the current player
 //
 // If the player makes the END_TURN move, their turn ends,
@@ -1069,9 +1508,53 @@ int isValidMove
 void playMove
 (Game game, playerMove move)
 {
-    // check if there is a valid move, if not just end turn and draw card
-    // if there is play the specific card and remove the card from the array?
-    move = move;
+
+    // If the game is new, make a new history list for both
+    // the first turn and move
+    if ((*game).turn_history == NULL)
+    {
+
+        (*game).turn_history =
+        turn_list_add
+        ((*game).turn_history, 0, NULL);
+
+        (* ((*game).turn_history)).moves =
+        move_list_add
+        ((* ((*game).turn_history)).moves, 0,
+        move);
+    }
+
+    // Else, traverse the existing list and put in the move
+    else
+    {
+
+        struct move_list *last_turn =
+        (* ((*game).turn_history)).moves;
+
+        playerMove last_move =
+        move_list_retrieve (last_turn, -1);
+
+        // If the last move of the most recent turn is END_TURN,
+        // then make a new turn
+        if (last_move.action  == END_TURN)
+        {
+
+            (*game).turn_history =
+            turn_list_add
+            ((*game).turn_history, 0, NULL);
+
+        }
+
+        // On this turn, put new move at the end of the list
+        // of moves
+        (* ((*game).turn_history)).moves =
+        move_list_add
+        ((* ((*game).turn_history)).moves, -1,
+        move);
+
+    }
+
+    // return 0;
 
 }
 

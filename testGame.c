@@ -662,7 +662,7 @@ value deck_values[deck_size])
 
         conditional_print
         ("%s %03d %s %03d %s \n%s \n",
-        "Player", player, "has ",
+        "Player", player, "has",
         handCardCount (new_game), "cards.",
         "Below are pairs of cards from "
         "initial deck and from the hand.");
@@ -849,13 +849,17 @@ Card assert_and_retrieve_card
     handCard (new_game, card_num);
 
     conditional_print
-    ("%s %03d%s %03d %s \n%s %s %s %s %s \n",
+    ("%s %03d%s %03d %s \n%s %s %s %s %s %s %s %s %s \n",
     "In the hand of player", player, ", card number", card_num,
     "is ...", "  ... (",
     color_names[(*actual_card).card_color],
     suit_names[(*actual_card).card_suit],
     value_names[(*actual_card).card_value],
-    ") (");
+    ") (",
+    color_names[(*function_card).card_color],
+    suit_names[(*function_card).card_suit],
+    value_names[(*function_card).card_value],
+    ")");
 
     assert
     (actual_card == function_card);
@@ -884,11 +888,16 @@ int game_announce_check_and_make_move
 (Game new_game, playerMove move)
 {
 
+    printf
+    ("%s \n%s \n",
+    "game_announce_check_and_make_move",
+    "Ensure the move is in the right place in game history. ");
+
     if (move.action == END_TURN)
     {
 
         conditional_print
-        ("%s \n\n", "END_TURN");
+        ("      %s \n\n", "END_TURN");
 
     }
     else if (move.action == PLAY_CARD)
@@ -897,7 +906,7 @@ int game_announce_check_and_make_move
         Card card = move.card;
 
         conditional_print
-        ("%s %s %s %s %s %s \n",
+        ("      %s %s %s %s %s %s \n",
         action_names[move.action],
         "(",
         (color_names[(*card).card_color]),
@@ -912,7 +921,7 @@ int game_announce_check_and_make_move
         Card card = move.card;
 
         conditional_print
-        ("%s %s %s \n",
+        ("      %s %s %s \n",
         action_names[move.action],
         "DECLARE",
         color_names[(*card).card_color]);
@@ -922,15 +931,73 @@ int game_announce_check_and_make_move
     {
 
         conditional_print
-        ("%s \n",
+        ("      %s \n",
         action_names[move.action]);
 
     }
 
+    // @@@
+    // For now, permanently valid move
     assert
-    (isValidMove (new_game, move) == 1);
+    (isValidMove (new_game, move) == 0);
 
     playMove (new_game, move);
+
+    // History should now contain this move. We should verify it.
+    // Look at the last pastMove. Does it match MOVE?
+    playerMove in_pastMove =
+    pastMove
+    (new_game, (*new_game).turn,
+    (move_list_length
+    ((* ((*new_game).turn_history)).moves)
+    - 1));
+
+    // What is this move?
+    if (in_pastMove.action == END_TURN)
+    {
+
+        conditional_print
+        ("      %s \n\n", "END_TURN");
+
+    }
+    else if (in_pastMove.action == PLAY_CARD)
+    {
+
+        Card card = in_pastMove.card;
+
+        conditional_print
+        ("      %s %s %s %s %s %s \n",
+        action_names[in_pastMove.action],
+        "(",
+        (color_names[(*card).card_color]),
+        (suit_names[(*card).card_suit]),
+        (value_names[(*card).card_value]),
+        ")");
+
+    }
+    else if (in_pastMove.action == DECLARE)
+    {
+
+        Card card = in_pastMove.card;
+
+        conditional_print
+        ("      %s %s %s \n",
+        action_names[in_pastMove.action],
+        "DECLARE",
+        color_names[(*card).card_color]);
+
+    }
+    else
+    {
+
+        conditional_print
+        ("      %s \n",
+        action_names[in_pastMove.action]);
+
+    }
+
+    assert
+    ((& move) == (& in_pastMove));
 
     return 0;
 
@@ -1078,15 +1145,6 @@ int game_play_basic
             game_announce_check_and_make_move
             (new_game, move);
 
-            // History should now contain this move. We should
-            // verify it. Look at the first move. Does it match
-            // MOVE?
-            playerMove in_pastMove =
-            pastMove (new_game, turn, 0);
-
-            assert
-            ((& move) == (& in_pastMove));
-
         }
 
         move.action = END_TURN;
@@ -1143,6 +1201,9 @@ int game_all_basic
     new_game =
     newGame
     (deck_size, deck_values, deck_colors, deck_suits);
+
+    conditional_print
+    ("\n");
 
     conditional_print
     ("%s %d \n",
