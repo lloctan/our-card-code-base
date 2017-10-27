@@ -1061,7 +1061,8 @@ int isValidMove
 void playMove
 (Game game, playerMove move)
 {
-
+    // check if there is a valid move, if not just end turn and draw card
+    // if there is play the specific card and remove the card from the array?
     move = move;
 
 }
@@ -1078,6 +1079,10 @@ int gameWinner
 (Game game)
 {
 
+    // I guess this is checked at the end of every turn?
+    // You would check for cards in the player hand, if there are no cards at the end of turn than the current player would
+    // be declared winner
+    
     return 0;
 
 }
