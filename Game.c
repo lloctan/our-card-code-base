@@ -1034,7 +1034,17 @@ Card topDiscard (Game game) {
 int isValidMove
 (Game game, playerMove move)
 {
-
+    // Get the current turn and then get the previous turn number
+    current_turn = (*game).turn;
+    previous_turn = current_turn - 1;
+    
+    // Using the previous turn number look through the turn_list struct for the move history
+    // Find the moves played in the turn/move history
+    // Using if statements, if the following "moves" were played check the hand if there is a relevant card
+    // e.g. if previous_turn = DRAW_TWO check for a DRAW_TWO card in player card array
+    // If found than return validmove
+    // If not than return INVALID MOVE
+    // Repeat for all plays involving interaction, e.g. ADVANCE, 
     return 0;
 
 }
