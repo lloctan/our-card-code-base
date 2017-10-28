@@ -31,17 +31,17 @@
 
 
 // For verbose or silence, toggle here
-#define verbose 1
+#define silent 1
 
-#if verbose
-# define conditional_print printf
-#else
+#if silent
 # define conditional_print ignore
 int ignore
-(char *format, ...)
+(...)
 {
     return 0;
 }
+#else
+# define conditional_print printf
 #endif
 
 
@@ -656,89 +656,87 @@ value deck_values[deck_size])
     "Check the cards in hands match those in initial deck.",
     "We expect", in_hand_initially, "initial cards.");
 
-    int player = NUM_PLAYERS;
-    while (0 <= (player -= 1))
+    // We'll do this for player zero
+    int player = 0;
+    conditional_print
+    ("%s %03d %s %03d %s \n%s \n",
+    "Player", player, "has",
+    handCardCount (new_game), "cards.",
+    "Below are pairs of cards from "
+    "initial deck and from the hand.");
+
+    // In the beginning, make sure player zero has seven cards
+    assert
+    (in_hand_initially ==
+    handCardCount (new_game));
+
+    // Now check that cards in hands match those corresponding
+    // in the initial deck.
+    in_hand_index = in_hand_initially;
+    while (0 <= (in_hand_index -= 1))
     {
 
+        // Retrieve the properties of the card from the initial deck
+        color_from_ini_deck =
+        deck_colors
+        [NUM_PLAYERS * in_hand_index + player];
+
+        suit_from_ini_deck =
+        deck_suits
+        [NUM_PLAYERS * in_hand_index + player];
+
+        value_from_ini_deck =
+        deck_values
+        [NUM_PLAYERS * in_hand_index + player];
+
+        // With "handCard" function, retrieve the card and then its
+        // properties
+        in_hand_card =
+        handCard
+        (new_game,
+        (in_hand_initially - in_hand_index - 1));
+
+        color_from_hand =
+        (*in_hand_card).card_color;
+
+        suit_from_hand =
+        (*in_hand_card).card_suit;
+
+        value_from_hand =
+        (*in_hand_card).card_value;
+
+        // Compare the properties
         conditional_print
-        ("%s %03d %s %03d %s \n%s \n",
-        "Player", player, "has",
-        handCardCount (new_game), "cards.",
-        "Below are pairs of cards from "
-        "initial deck and from the hand.");
+        ("%s %03d %s %s %s %s %s %s %s %s %s \n",
+        "  ... ", in_hand_index, ". (",
+        (color_names[color_from_ini_deck]),
+        (suit_names[suit_from_ini_deck]),
+        (value_names[value_from_ini_deck]),
+        ") (",
+        (color_names[color_from_hand]),
+        (suit_names[suit_from_hand]),
+        (value_names[value_from_hand]),
+        ")");
 
-        // In the beginning, make sure each player has seven cards
-        assert
-        (in_hand_initially ==
-        handCardCount (new_game));
-
-        // Now check that cards in hands match those corresponding
-        // in the initial deck
-        in_hand_index = in_hand_initially;
-        while (0 <= (in_hand_index -= 1))
-        {
-
-            // Retrieve the properties of the card from the initial deck
-            color_from_ini_deck =
-            deck_colors
-            [in_hand_initially * player + in_hand_index];
-
-            suit_from_ini_deck =
-            deck_suits
-            [in_hand_initially * player + in_hand_index];
-
-            value_from_ini_deck =
-            deck_values
-            [in_hand_initially * player + in_hand_index];
-
-            // With "handCard" function, retrieve the card and then its
-            // properties
-            in_hand_card =
-            handCard (new_game, in_hand_index);
-
-            color_from_hand =
-            (*in_hand_card).card_color;
-
-            suit_from_hand =
-            (*in_hand_card).card_suit;
-
-            value_from_hand =
-            (*in_hand_card).card_value;
-
-            // Compare the properties
-            conditional_print
-            ("%s %03d %s %s %s %s %s %s %s %s %s \n",
-            "  ... ", in_hand_index, ". (",
-            (color_names[color_from_ini_deck]),
-            (suit_names[suit_from_ini_deck]),
-            (value_names[value_from_ini_deck]),
-            ") (",
-            (color_names[color_from_hand]),
-            (suit_names[suit_from_hand]),
-            (value_names[value_from_hand]),
-            ")");
-
-            assert (color_from_ini_deck == color_from_hand);
-            assert (suit_from_ini_deck == suit_from_hand);
-            assert (value_from_ini_deck == value_from_hand);
-
-        }
-
-        conditional_print
-        ("\n");
+        assert (color_from_ini_deck == color_from_hand);
+        assert (suit_from_ini_deck == suit_from_hand);
+        assert (value_from_ini_deck == value_from_hand);
 
     }
+
+    conditional_print
+    ("\n");
 
     // Now check the first card in the discard pile. It should be the
     // first card in the deck after distributing cards to players
     color_from_ini_deck =
-    deck_colors[in_hand_initially * NUM_PLAYERS];
+    deck_colors[NUM_PLAYERS * in_hand_initially];
 
     suit_from_ini_deck =
-    deck_suits[in_hand_initially * NUM_PLAYERS];
+    deck_suits[NUM_PLAYERS * in_hand_initially];
 
     value_from_ini_deck =
-    deck_values[in_hand_initially * NUM_PLAYERS];
+    deck_values[NUM_PLAYERS * in_hand_initially];
 
     Card card_in_discard = topDiscard (new_game);
 
@@ -888,7 +886,7 @@ int game_announce_check_and_make_move
 (Game new_game, playerMove move)
 {
 
-    printf
+    conditional_print
     ("%s \n%s \n",
     "game_announce_check_and_make_move",
     "Ensure the move is in the right place in game history. ");
@@ -957,7 +955,7 @@ int game_announce_check_and_make_move
     {
 
         conditional_print
-        ("      %s \n\n", "END_TURN");
+        ("      %s \n", "END_TURN");
 
     }
     else if (in_pastMove.action == PLAY_CARD)
@@ -997,7 +995,13 @@ int game_announce_check_and_make_move
     }
 
     assert
-    ((& move) == (& in_pastMove));
+    (move.action == in_pastMove.action);
+
+    assert
+    (move.nextColor == in_pastMove.nextColor);
+
+    assert
+    (move.card == in_pastMove.card);
 
     return 0;
 
@@ -1091,9 +1095,11 @@ int game_play_basic
     // Only when the most recent player has zero cards left in
     // their hand does the game end.
     while
-    ((0 < (cards_in_hand = handCardCount (new_game)))
+    ((*new_game).game_continue
     && (0 <= (turn += 1)))
     {
+
+        cards_in_hand = handCardCount (new_game);
 
         // Because all cards are ("RED" "HEARTS" "ONE"), we know
         // that the direction is always "CLOCKWISE"
@@ -1112,31 +1118,44 @@ int game_play_basic
         if (0 < cards_in_hand)
         {
 
-            if (cards_in_hand == 3)
+            int move_num = 0;
+            if (cards_in_hand <= 3)
             {
 
-                move.action = SAY_TRIO;
-                game_announce_check_and_make_move
-                (new_game, move);
+                if (cards_in_hand == 3)
+                {
+
+                    move.action = SAY_TRIO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
+
+                }
+                else if (cards_in_hand == 2)
+                {
+
+                    move.action = SAY_DUO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
+
+                }
+                else if (cards_in_hand == 1)
+                {
+
+                    move.action = SAY_UNO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
+
+                }
+
+                // History should now contain this move. We should
+                // verify it. Look at the first move. Does it match
+                // MOVE?
+                assert_move
+                (move, pastMove (new_game, turn, move_num));
+
+                move_num += 1;
 
             }
-            else if (cards_in_hand == 2)
-            {
-
-                move.action = SAY_DUO;
-                game_announce_check_and_make_move
-                (new_game, move);
-
-            }
-            else if (cards_in_hand == 1)
-            {
-
-                move.action = SAY_UNO;
-                game_announce_check_and_make_move
-                (new_game, move);
-
-            }
-
             // Always the first card!
             move.action = PLAY_CARD;
             move.card =
@@ -1145,7 +1164,17 @@ int game_play_basic
             game_announce_check_and_make_move
             (new_game, move);
 
+            // History should now contain this move. We should
+            // verify it.
+            assert_move
+            (move,
+            pastMove (new_game, turn, move_num));
+
         }
+
+        // If this player has no cards left in hand, winner!
+        ((handCardCount (new_game) == 0)
+        && ((*new_game).game_continue = 0));
 
         move.action = END_TURN;
         game_announce_check_and_make_move
@@ -1257,21 +1286,40 @@ int game_all_basic
 
 
 
+int assert_move
+(playerMove one, playerMove another)
+{
+
+    assert
+    (one.action == another.action);
+
+    assert
+    (one.nextColor == another.nextColor);
+
+    assert
+    (one.card == another.card);
+
+    return 0;
+
+}
+
 int game_play_all_numbers
 (Game new_game)
 {
 
     playerMove move;
-    int cards_in_hand;
+    int cards_in_hand = 1;
     int player = -1;
     int turn = -1;
 
     // Only when the most recent player has zero cards left in
     // their hand does the game end.
     while
-    ((0 < (cards_in_hand = handCardCount (new_game)))
+    ((*new_game).game_continue
     && (0 <= (turn += 1)))
     {
+
+        cards_in_hand = handCardCount (new_game);
 
         // Because all cards are without effects, we know
         // that the direction is always "CLOCKWISE"
@@ -1279,39 +1327,54 @@ int game_play_all_numbers
 
         // On turn 0, player 0, the game begins
         conditional_print
-        ("%s %03d %s %03d %s \n",
+        ("%s %03d %s %03d%s \n",
         "Turn", turn, "and player", player, ".");
 
         assert_turn_and_player
         (new_game, turn, player);
 
-        // Our move will always be ("RED" "HEARTS" "ONE").
+        // Our move will always be the first card in the hand
         // So, choose the first card. But if no cards left, end turn
         if (0 < cards_in_hand)
         {
 
-            if (cards_in_hand == 3)
+            int move_num = 0;
+
+            if (cards_in_hand <= 3)
             {
 
-                move.action = SAY_TRIO;
-                game_announce_check_and_make_move
-                (new_game, move);
+                if (cards_in_hand == 3)
+                {
 
-            }
-            else if (cards_in_hand == 2)
-            {
+                    move.action = SAY_TRIO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
 
-                move.action = SAY_DUO;
-                game_announce_check_and_make_move
-                (new_game, move);
+                }
+                else if (cards_in_hand == 2)
+                {
 
-            }
-            else if (cards_in_hand == 1)
-            {
+                    move.action = SAY_DUO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
 
-                move.action = SAY_UNO;
-                game_announce_check_and_make_move
-                (new_game, move);
+                }
+                else if (cards_in_hand == 1)
+                {
+
+                    move.action = SAY_UNO;
+                    game_announce_check_and_make_move
+                    (new_game, move);
+
+                }
+
+                // History should now contain this move. We should
+                // verify it. Look at the first move. Does it match
+                // MOVE?
+                assert_move
+                (move, pastMove (new_game, turn, move_num));
+
+                move_num += 1;
 
             }
 
@@ -1324,15 +1387,16 @@ int game_play_all_numbers
             (new_game, move);
 
             // History should now contain this move. We should
-            // verify it. Look at the first move. Does it match
-            // MOVE?
-            playerMove in_pastMove =
-            pastMove (new_game, turn, 0);
-
-            assert
-            ((& move) == (& in_pastMove));
+            // verify it.
+            assert_move
+            (move,
+            pastMove (new_game, turn, move_num));
 
         }
+
+        // If this player has no cards left in hand, winner!
+        ((handCardCount (new_game) == 0)
+        && ((*new_game).game_continue = 0));
 
         move.action = END_TURN;
         game_announce_check_and_make_move
@@ -1354,12 +1418,6 @@ int game_all_numbers_only
     value deck_values[deck_size];
     Game new_game;
 
-    // Variables to keep track the frequency of colours, suits
-    // and values in the deck
-    int deck_color_tracker[color_max] = { 0 };
-    int deck_suit_tracker[suit_max] = { 0 };
-    int deck_value_tracker[value_max] = { 0 };
-
     // Miscellane
     int turn;
     int player;
@@ -1373,6 +1431,12 @@ int game_all_numbers_only
     int count_games = random_iterations_games;
     while (0 <= (count_games -= 1))
     {
+
+        // Variables to keep track the frequency of colours,
+        // suits and values in the deck
+        int deck_color_tracker[color_max] = { 0 };
+        int deck_suit_tracker[suit_max] = { 0 };
+        int deck_value_tracker[value_max] = { 0 };
 
         conditional_print
         ("%s %03d \n%s \n", "New game.",
@@ -1533,7 +1597,7 @@ int main
 
     game_all_numbers_only ();
 
-    printf
+    conditional_print
     ("%s \n\n\n",
     "Success!! =) ");
 
