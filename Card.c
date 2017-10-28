@@ -93,14 +93,14 @@ Card newCard
 
     // If successful, fill in the card properties, which include...
     // unique ID, suit, colour and value.
-    // (*new_card).card_id =
+    // (*new_card).id =
     // total_values *total_suits *color +
     // total_values *suit +
     // value;
 
-    (*new_card).card_color = color;
-    (*new_card).card_suit = suit;
-    (*new_card).card_value = value;
+    (*new_card).color = color;
+    (*new_card).suit = suit;
+    (*new_card).value = value;
 
     // Now return it
     return new_card;
@@ -126,7 +126,7 @@ suit cardSuit
 (Card card)
 {
 
-    return (*card).card_suit;
+    return (*card).suit;
 
 }
 
@@ -137,7 +137,7 @@ value cardValue
 (Card card)
 {
 
-    return (*card).card_value;
+    return (*card).value;
 
 }
 
@@ -148,7 +148,7 @@ color cardColor
 (Card card)
 {
 
-    return (*card).card_color;
+    return (*card).color;
 
 }
 
@@ -167,10 +167,10 @@ int experiment_001
   printf
     ("%s \n%d %d %d %d \n\n",
       "Card_one. Identification, three, blue, spades.",
-      (*card_one).card_id,
-      (*card_one).card_color,
-      (*card_one).card_suit,
-      (*card_one).card_value);
+      (*card_one).id,
+      (*card_one).color,
+      (*card_one).suit,
+      (*card_one).value);
 
   printf
     ("%s \n%d %d %d \n\n",
