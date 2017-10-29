@@ -1,4 +1,7 @@
-//
+//player.c
+//Alexander Crouch z5161507 and Elison Zon z3463249
+//29.10.2017
+
 //    DRAW_CARD,
     // Play a single card onto the discard pile.
 //    PLAY_CARD,
