@@ -3,33 +3,38 @@
 //29.10.2017
 
 //    DRAW_CARD,
-    // Play a single card onto the discard pile.
+// Play a single card onto the discard pile.
 //    PLAY_CARD,
-    // Say the word "UNO".
+// Say the word "UNO".
 //    SAY_UNO,
-    // Say the word "DUO".
- //   SAY_DUO,
- //        Say the word "TRIO".
- //   SAY_TRIO,
-    // End the player's turn.
+// Say the word "DUO".
+//   SAY_DUO,
+//        Say the word "TRIO".
+//   SAY_TRIO,
+// End the player's turn.
 //    END_TURN
 
 // Prototype
 #include <stdio.h>
 #include <stdlib.h>
+#include "Card.h"
 #include "Game.h"
 #include "player.h"
 
 
 
 // Miscellaneous
-// This should only run once. Hence, global
-int random_seed = 80;
-srandom (random_seed);
-
-
-
 #define NOT_FOUND -1
+
+
+
+// Errors!! Incomplete type!
+struct _card
+{
+    color color;
+    suit suit;
+    value value;
+};
 
 
 
@@ -45,7 +50,7 @@ static int *valid_cards_to_play
     // The first element contains the number of playable cards.
     // If 2, then the two integers following it contain indices
     // to the player's hand which are playable
-    int playable_cards =
+    int *playable_cards =
     malloc ((sizeof (int)) * (in_hand + 1));
 
     // To check whether or not the card is playable, we try it
@@ -89,7 +94,7 @@ static int *valid_cards_to_play
         // "int *free (valid_cards);"
     }
 
-    return found;
+    return playable_cards;
 
 }
 
@@ -98,49 +103,50 @@ static int *valid_cards_to_play
 // Find a card in the player's hand that matches the specified color,
 // if such a card exists.
 // Returns the card index, or NOT_FOUND if no matching card was found.
-static int findMatchingCardColor
-(Game game, color color)
-{
-
-    int found = 0;
-    Card card;
-
-    const int in_hand = handCardCount (game);
-    int choose[in_hand] = { 0 };
-
-    while (0 <= (in_hand -= 1))
-    {
-
-        card = handCard (game, in_hand);
-
-        if ((*card).color == color)
-        {
-
-            choose[found] = in_hand;
-            found += 1;
-
-        }
-    }
-
-    // If we find none, return none. If we find one, return it.
-    // If we find more than one, return one at random
-    if (found == 0)
-    {
-        found = NOT_FOUND;
-    }
-    else if (found == 1)
-    {
-        found = choose[0];
-    }
-    else
-    {
-        found = choose[random () % (found - 1)];
-    }
-
-    return found;
-
-}
-
+/* 
+ * static int findMatchingCardColor
+ * (Game game, color color)
+ * {
+ *
+ *     int found = 0;
+ *     Card card;
+ *
+ *     const int in_hand = handCardCount (game);
+ *     int choose[in_hand] = { 0 };
+ *
+ *     while (0 <= (in_hand -= 1))
+ *     {
+ *
+ *         card = handCard (game, in_hand);
+ *
+ *         if ((*card).color == color)
+ *         {
+ *
+ *             choose[found] = in_hand;
+ *             found += 1;
+ *
+ *         }
+ *     }
+ *
+ *     // If we find none, return none. If we find one, return it.
+ *     // If we find more than one, return one at random
+ *     if (found == 0)
+ *     {
+ *         found = NOT_FOUND;
+ *     }
+ *     else if (found == 1)
+ *     {
+ *         found = choose[0];
+ *     }
+ *     else
+ *     {
+ *         found = choose[random () % (found - 1)];
+ *     }
+ *
+ *     return found;
+ *
+ * }
+ */
 
 
 // Do two cards match on either value, color, or suit?
@@ -174,55 +180,56 @@ static int whatCard (Game game, int *found) {
     if (topDiscard->value == DRAW_TWO) {
         while (a <= found[0] && gotcha == -1) {
             check = handCard(game, found[a]);
-                if (check->value == DRAW_TWO) {
-                    gotcha = 0;
-                    cardIndex = a;
-                }
+            if (check->value == DRAW_TWO) {
+                gotcha = 0;
+                cardIndex = a;
+            }
             a++;
         }
     } else {
         check = handCard(game, found[1]);
-        int max = check->value; 
+        int max = check->value;
         while (a < found[0]) {
             check = handCard(game, found[a]);
             if (check->value > max) {
                 max = check->value;
                 cardIndex = a;
             }
-        a++;
-        }   
+            a++;
+        }
     }
     return cardIndex;
 }
 
 // Determine whether the player can currently draw a card.
 // If they can't draw a card, they should probably end their turn.
-static int canDrawCard
-(Game game)
-{
-
-    Card in_discard = topDiscard (game);
-
-    int found =
-    findMatchingCardColor
-    (game, (*in_discard).color);
-
-    // If unable to play a card, draw a card
-    if (found == NOT_FOUND)
-    {
-        found = FALSE;
-    }
-
-    // If able to play a card, no need to draw one
-    else
-    {
-        found = TRUE;
-    }
-
-    return found;
-
-}
-
+/* 
+ * static int canDrawCard
+ * (Game game)
+ * {
+ *
+ *     Card in_discard = topDiscard (game);
+ *
+ *     int found =
+ *     findMatchingCardColor
+ *     (game, (*in_discard).color);
+ *
+ *     // If unable to play a card, draw a card
+ *     if (found == NOT_FOUND)
+ *     {
+ *         found = FALSE;
+ *     }
+ *
+ *     // If able to play a card, no need to draw one
+ *     else
+ *     {
+ *         found = TRUE;
+ *     }
+ *
+ *     return found;
+ *
+ * }
+ */
 
 
 // Determine whether the current player should SAY_UNO.
@@ -296,81 +303,81 @@ static int shouldSayTRIO
 // We can take advantage of that for our very simple A.I. to determine
 // where we are at in our turn, and thus what move we should make.
 
-playerMove decideMove 
-( Game game ) 
-{ 
-  // Start out by making a move struct, to say what our move is. 
-  playerMove move ; 
+playerMove decideMove
+(Game game)
+{
+    // Start out by making a move struct, to say what our move is.
+    playerMove move;
 
-  // Set our move to be END_TURN, and check whether that's 
-  // a valid move -- if it is, then just end our turn ( for now ). 
-  move.action = END_TURN ; 
+    // Set our move to be END_TURN, and check whether that's
+    // a valid move -- if it is, then just end our turn (for now).
+    move.action = END_TURN;
 
-  // If it's not valid to end turn, we must need to make 
-  // some other action... 
-  // 
-  // What actions are valid at this point? 
-  if ( isValidMove ( game , move ) == 0 )
-    { 
-
-      // Valid actions include: 
-      // - play a card, 
-      // - draw a card, 
-      // - call the previous play out for forgetting to SAY_UNO etc. 
-      int * valid_cards = valid_cards_to_play ( game ) ;
-      if ( valid_cards )
-    {
-      // Determine which is the best move to play 
-      move.card =
-        handCard ( game , whatCard ( game , valid_cards )) ;
-      free ( valid_cards ) ;
-    }
-      else
-    {
-      // The easiest thing here is to draw a card, since we don't 
-      // need to try to work out if we have a valid card, etc. 
-      move.action = DRAW_CARD ; 
-    }
-
-      // Now submit move 
-      playMove ( game , move ) ;
-
-    } 
-
-  // Now we end our turn 
-  else
+    // If it's not valid to end turn, we must need to make
+    // some other action...
+    //
+    // What actions are valid at this point?
+    if (isValidMove (game, move) == 0)
     {
 
-      // Check necessity to call "TRIO", "DUO" or "UNO" 
-      int num_cards_in_hand = handCardCount ( game ) ;
-      if ( num_cards_in_hand <= 3 )
-    {
-
-      if ( num_cards_in_hand == 3 )
+        // Valid actions include:
+        // - play a card,
+        // - draw a card,
+        // - call the previous play out for forgetting to SAY_UNO etc.
+        int *valid_cards = valid_cards_to_play (game);
+        if (valid_cards)
         {
-          move.action = SAY_TRIO ;
+            // Determine which is the best move to play
+            move.card =
+            handCard (game, whatCard (game, valid_cards));
+            free (valid_cards);
         }
-      else if ( num_cards_in_hand == 2 )
+        else
         {
-          move.action = SAY_DUO ;
-        }
-      else if ( num_cards_in_hand == 1 )
-        {
-          move.action = SAY_UNO ;
+            // The easiest thing here is to draw a card, since we don't
+            // need to try to work out if we have a valid card, etc.
+            move.action = DRAW_CARD;
         }
 
-      playMove ( game , move ) ;
+        // Now submit move
+        playMove (game, move);
 
     }
 
-      // End turn now 
-      move.action = END_TURN ;
-      playMove ( game , move ) ;
+    // Now we end our turn
+    else
+    {
+
+        // Check necessity to call "TRIO", "DUO" or "UNO"
+        int num_cards_in_hand = handCardCount (game);
+        if (num_cards_in_hand <= 3)
+        {
+
+            if (num_cards_in_hand == 3)
+            {
+                move.action = SAY_TRIO;
+            }
+            else if (num_cards_in_hand == 2)
+            {
+                move.action = SAY_DUO;
+            }
+            else if (num_cards_in_hand == 1)
+            {
+                move.action = SAY_UNO;
+            }
+
+            playMove (game, move);
+
+        }
+
+        // End turn now
+        move.action = END_TURN;
+        playMove (game, move);
 
     }
 
-  return move ; 
-} 
+    return move;
+}
 
 
 
