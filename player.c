@@ -15,6 +15,7 @@
 //    END_TURN
 
 // Prototype
+#include <stdio.h>
 #include <stdlib.h>
 #include "Game.h"
 #include "player.h"
