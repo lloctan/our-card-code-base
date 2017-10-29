@@ -171,13 +171,13 @@ static int whatCard (Game game, int *found) {
     int cardIndex = -1;
     Card check;
     Card check2;
-    Card topDiscard = topDiscard(game);
+    Card discard = topDiscard(game);
     int gotcha = -1;
     int a = 1;
     //prioritises move that it wants to make
     //checks if the discard is a draw 2, if so looks for a draw two in hand
     //if it's not a draw 2 just play the highest value card, 101: strategy FTW
-    if (topDiscard->value == DRAW_TWO) {
+    if (discard->value == DRAW_TWO) {
         while (a <= found[0] && gotcha == -1) {
             check = handCard(game, found[a]);
             if (check->value == DRAW_TWO) {
