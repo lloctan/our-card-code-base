@@ -157,38 +157,33 @@ static int doCardsMatch
 }
 
 //determine which cards can be played
-static int whatCard (Game game) {
+static int whatCard (Game game, int *found) {
     int cardIndex = -1;
     Card check;
     Card check2;
     Card topDiscard = topDiscard(game);
-    int *found = valid_cards_to_play(game);
-    int priority = 0;
     int gotcha = -1;
-    int a = 0;
+    int a = 1;
     //prioritises move that it wants to make
     //checks if the discard is a draw 2, if so looks for a draw two in hand
     //if it's not a draw 2 just play the highest value card, 101: strategy FTW
     if (topDiscard->value == DRAW_TWO) {
         while (a <= found[0] && gotcha == -1) {
             check = handCard(game, found[a]);
-                if (check->value == topDiscard->value) {
+                if (check->value == DRAW_TWO) {
                     gotcha = 0;
-                    cardIndex = a
+                    cardIndex = a;
                 }
             a++;
         }
-        if (gotcha == -1) {
-            cardIndex == -1;
-        }
     } else {
+        check = handCard(game, found[1]);
+        int max = check->value; 
         while (a < found[0]) {
             check = handCard(game, found[a]);
-            check2 = handCard(game, found[a+1]);
-            if (check->value > check2->value) {
+            if (check->value > max) {
+                max = check->value;
                 cardIndex = a;
-            } else {
-                cardIndex = a+1;
             }
         a++;
         }   
