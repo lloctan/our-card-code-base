@@ -30,7 +30,7 @@ static int findMatchingCardColor
     int found = 0;
     Card card;
 
-    const int in_hand = (*game).handCardCount;
+    const int in_hand = handCardCount (game);
     int choose[in_hand] = { 0 };
 
     while (0 <= (in_hand -= 1))

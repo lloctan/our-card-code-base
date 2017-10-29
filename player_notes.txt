@@ -1,0 +1,11 @@
+
+
+
+if 
+   how many cards can we play? 
+   if only one, play it 
+   if two or more, 
+      at the moment, pick one at random and play it 
+   call uno, duo or trio 
+   
+
