@@ -19,11 +19,13 @@
 #include "player.h"
 
 void playCard (Game game, int value);
+void sayIt (Game game);
 
 int main (int argc, char *argv[]) {
 
     decideMove (new_game);
-
+    sayIt (new_game);
+    
     move.action == END_TURN;
 
     return EXIT_SUCCESS;
@@ -75,4 +77,18 @@ void playCard (Game game, int value) {
         (*new_game).player_hands[player] =
         card_list_remove
         ((*new_game).player_hands[player], i);
+}
+
+// this function is to say Uno/Duo/Trio when required
+void sayIt (Game game) {
+    
+    int hand_size = handCardCount(new_game);
+    
+    if (hand_size == 3) {
+        printf ("Trio\n");
+    } else if (hand_size == 2) {
+        printf ("Duo\n");
+    } else if hand_size == 1) {
+        printf ("Uno\n");
+    }
 }
